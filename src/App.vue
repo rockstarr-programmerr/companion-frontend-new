@@ -1,56 +1,124 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
+    <v-main
+       v-if="initDone"
+      class="restrict-width"
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
       <router-view/>
     </v-main>
+
+    <v-progress-linear
+      v-else
+      indeterminate
+    ></v-progress-linear>
+
+    <v-snackbar
+      :value="messageShow"
+      @input="setMessage"
+      :color="messageColor"
+      bottom
+    >
+      {{ messageText }}
+      <template #action="{ attrs }">
+        <v-btn
+          color="white"
+          text
+          icon
+          v-bind="attrs"
+          @click="hideMessage"
+        >
+          <v-icon>
+            mdi-close
+          </v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import { Vue, Component } from 'vue-property-decorator'
+import { mapState, mapMutations } from 'vuex';
+import { User } from './interfaces/user';
+import { noAuthenRoutes } from './router';
+import { unexpectedExc } from './utils';
+import { assertErrCode, status } from './utils/status-codes';
 
-export default Vue.extend({
-  name: 'App',
+@Component({
+  computed: {
+    ...mapState('account', {
+      user: 'loggedInUser'
+    }),
+    ...mapState('message', {
+      messageShow: 'show',
+      messageText: 'text',
+      messageColor: 'color'
+    })
+  },
+  methods: {
+    ...mapMutations('message', {
+      showMessage: 'SHOW_MESSAGE',
+      hideMessage: 'HIDE_MESSAGE'
+    })
+  }
+})
+export default class App extends Vue {
+  /**
+   * Init
+   */
+  user!: User
+  loading = false
+  initDone = false
 
-  data: () => ({
-    //
-  }),
-});
+  created (): void {
+    this.setUserInfo()
+  }
+
+  setUserInfo (): void {
+    const routeName = this.$route.name
+    if (noAuthenRoutes.includes(routeName as string)) {
+      this.initDone = true
+      return
+    }
+
+    this.loading = true
+    this.$store.dispatch('account/getInfo')
+      .catch(err => {
+        if (assertErrCode(err, status.HTTP_401_UNAUTHORIZED)) {
+          this.$router.push({ name: 'Login' })
+        } else {
+          unexpectedExc(err)
+        }
+      })
+      .finally(() => {
+        this.loading = false
+        this.initDone = true
+      })
+  }
+
+  /**
+   * Message
+   */
+  messageShow!: boolean
+  messageText!: string
+  messageColor!: string
+  showMessage!: CallableFunction
+  hideMessage!: CallableFunction
+
+  setMessage (show: boolean): void {
+    if (show) {
+      this.showMessage()
+    } else {
+      this.hideMessage()
+    }
+  }
+}
 </script>
+
+<style scoped lang="scss">
+.restrict-width {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+</style>
