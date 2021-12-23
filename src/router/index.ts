@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 
-import Home from '../views/Home.vue'
+import DashBoard from '../views/DashBoard.vue'
 
 import Login from '../views/auth/Login.vue'
 
@@ -10,8 +10,8 @@ Vue.use(VueRouter)
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'DashBoard',
+    component: DashBoard
   },
   {
     path: '/login',

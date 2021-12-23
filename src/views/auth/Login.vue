@@ -132,7 +132,7 @@ export default class Login extends Vue {
 
     Promise.all(promises)
       .then(() => {
-        this.$router.push({ name: 'Home' })
+        this.$router.push({ name: 'DashBoard' })
       })
       .catch(error => {
         if (assertErrCode(error, status.HTTP_401_UNAUTHORIZED)) {

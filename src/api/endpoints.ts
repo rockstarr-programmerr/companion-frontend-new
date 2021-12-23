@@ -10,8 +10,13 @@ export const endpoints = {
       resetPassword: '/users/reset-password/'
     },
     me: {
-      myInfo: 'users/me/info',
+      myInfo: 'users/me/info/',
       updateProfile: '/me/'
+    }
+  },
+  splitTheBill: {
+    events: {
+      get: '/split-the-bill/events/'
     }
   }
 }
