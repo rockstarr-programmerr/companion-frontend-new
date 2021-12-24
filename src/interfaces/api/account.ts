@@ -1,4 +1,5 @@
 import { User } from '../user'
+import { PaginatedRes } from './common';
 
 export declare interface LoginReq {
   email: string;
@@ -19,23 +20,13 @@ export declare interface TokenRefreshRes {
   refresh: string;
 }
 
-export declare interface RegisterTeacherReq {
-  email: string;
-  password: string;
-  name?: string;
-  phone_number?: string;
-}
-
-export declare interface RegisterTeacherRes extends User {}
-
 export declare interface MyInfoRes extends User {}
 
 export declare interface UserDetailRes extends User {}
 
 export declare interface UpdateProfileReq {
-  name?: User['name'];
-  phone_number?: User['phone_number'];
   avatar?: File | null;
+  nickname?: string;
 }
 
 export declare interface UpdateProfileRes extends User {}
@@ -53,4 +44,18 @@ export declare interface ResetPasswordReq {
   uid: string;
   token: string;
   password: string;
+}
+
+export declare interface SearchUsersReq {
+  nickname_or_email__icontains: string;
+}
+
+export declare interface SearchUserDetailRes {
+  nickname: string;
+  email: string;
+  avatar_thumbnail: string | null;
+}
+
+export declare interface SearchUserRes extends PaginatedRes {
+  results?: SearchUserDetailRes[];
 }

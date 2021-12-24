@@ -7,7 +7,8 @@ export const endpoints = {
       detail: '/users/<pk>/',
       changePassword: '/users/change-password/',
       emailResetPasswordLink: '/users/email-reset-password-link/',
-      resetPassword: '/users/reset-password/'
+      resetPassword: '/users/reset-password/',
+      search: '/users/search/'
     },
     me: {
       myInfo: 'users/me/info/',

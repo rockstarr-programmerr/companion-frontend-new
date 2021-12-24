@@ -27,11 +27,13 @@ export const message: Module<MessageState, RootState> = {
     },
 
     SHOW_SUCCESS (state, text) {
+      state.text = text
       state.color = 'success'
       state.show = true
     },
 
     SHOW_ERROR (state, text) {
+      state.text = text
       state.color = 'error'
       state.show = true
     }

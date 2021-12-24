@@ -33,3 +33,17 @@ export function toTitleCase (text: string | undefined, separator?: string): stri
   })
   return words.join(' ')
 }
+
+// NOTE: This variable is used in `debounce` function
+// and it's important that it is OUTSIDE of the function
+let debounceTimer: number | undefined = undefined
+
+export function debounce (func: CallableFunction, miliseconds: number): CallableFunction {
+  return (...args: unknown[]) => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      // @ts-expect-error don't care
+      func.apply(this, args)
+    }, miliseconds)
+  }
+}

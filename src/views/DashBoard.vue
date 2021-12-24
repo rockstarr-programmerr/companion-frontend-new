@@ -48,6 +48,7 @@
         tile
         large
         class="mt-15"
+        :to="{ name: 'EventCreate' }"
       >
         New trip
       </v-btn>
@@ -68,6 +69,7 @@
           <v-btn
             icon
             large
+            :to="{ name: 'EventCreate' }"
           >
             <v-icon>
               mdi-plus
@@ -83,40 +85,38 @@
           class="list-item"
         >
           <v-list-item-content>
-            <v-list-item-text>
-              <v-row
-                justify="space-between"
-                align="center"
+            <v-row
+              justify="space-between"
+              align="center"
+            >
+              <v-col
+                cols="auto"
+                class="text-body-1 font-weight-bold"
               >
-                <v-col
-                  cols="auto"
-                  class="text-body-1 font-weight-bold"
+                {{ event.name }}
+              </v-col>
+              <v-col
+                cols="auto"
+              >
+                <BaseAvatar
+                  v-for="member of getTruncatedMembers(event)"
+                  :key="member.pk"
+                  :user="member"
+                  class="ml-2"
+                  size="36"
+                ></BaseAvatar>
+                <v-avatar
+                  v-if="getRemainingMembersCount(event) > 0"
+                  size="36"
+                  color="white"
+                  class="ml-2"
                 >
-                  {{ event.name }}
-                </v-col>
-                <v-col
-                  cols="auto"
-                >
-                  <BaseAvatar
-                    v-for="member of getTruncatedMembers(event)"
-                    :key="member.pk"
-                    :user="member"
-                    class="ml-2"
-                    size="36"
-                  ></BaseAvatar>
-                  <v-avatar
-                    v-if="getRemainingMembersCount(event) > 0"
-                    size="36"
-                    color="white"
-                    class="ml-2"
-                  >
-                    <span class="text-body-2 font-weight-bold">
-                      +{{ getRemainingMembersCount(event) }}
-                    </span>
-                  </v-avatar>
-                </v-col>
-              </v-row>
-            </v-list-item-text>
+                  <span class="text-body-2 font-weight-bold">
+                    +{{ getRemainingMembersCount(event) }}
+                  </span>
+                </v-avatar>
+              </v-col>
+            </v-row>
           </v-list-item-content>
         </v-list-item>
       </v-list>

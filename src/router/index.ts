@@ -5,6 +5,9 @@ import DashBoard from '../views/DashBoard.vue'
 
 import Login from '../views/auth/Login.vue'
 
+import EventCreate from '../views/event/EventCreate.vue'
+import { prefixWith } from './utils'
+
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
@@ -17,7 +20,14 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: Login
-  }
+  },
+  ...prefixWith('/events', [
+    {
+      path: '/new',
+      name: 'EventCreate',
+      component: EventCreate
+    }
+  ])
 ]
 
 const router = new VueRouter({

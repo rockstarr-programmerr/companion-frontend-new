@@ -5,7 +5,7 @@ import {
   EmailResetPasswordLinkReq,
   LoginReq, LoginRes,
   MyInfoRes,
-  ResetPasswordReq, TokenRefreshReq, TokenRefreshRes, UpdateProfileReq, UpdateProfileRes, UserDetailRes
+  ResetPasswordReq, SearchUserRes, SearchUsersReq, TokenRefreshReq, TokenRefreshRes, UpdateProfileReq, UpdateProfileRes, UserDetailRes
 } from '@/interfaces/api/account'
 import { User } from '@/interfaces/user'
 
@@ -64,5 +64,10 @@ export const account = {
 
   async resetPassword (payload: ResetPasswordReq): Promise<void> {
     await Vue.axios.post(endpoints.account.users.resetPassword, payload)
+  },
+
+  async searchUsers (params: SearchUsersReq): Promise<SearchUserRes> {
+    const res = await Vue.axios.get(endpoints.account.users.search, { params })
+    return res.data
   }
 }
