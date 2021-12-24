@@ -6,7 +6,9 @@ import DashBoard from '../views/DashBoard.vue'
 import Login from '../views/auth/Login.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
-import { prefixWith } from './utils'
+import EventDetail from '../views/event/EventDetail.vue'
+
+import { castToNumber, prefixWith } from './utils'
 
 Vue.use(VueRouter)
 
@@ -26,6 +28,12 @@ const routes: Array<RouteConfig> = [
       path: '/new',
       name: 'EventCreate',
       component: EventCreate
+    },
+    {
+      path: '/:pk',
+      name: 'EventDetail',
+      component: EventDetail,
+      props: castToNumber(['pk'])
     }
   ])
 ]

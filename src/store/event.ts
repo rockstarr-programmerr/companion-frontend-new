@@ -1,6 +1,7 @@
 import { Api } from '@/api'
 import { PaginatedRes } from '@/interfaces/api/common'
-import { Event } from '@/interfaces/event'
+import { EventDetailRes } from '@/interfaces/api/event'
+import { Event, EventCreateReq } from '@/interfaces/event'
 import { Module } from 'vuex'
 import { RootState } from './index'
 
@@ -24,6 +25,10 @@ export const event: Module<EventState, RootState> = {
 
     SET_PAGINATION (state, payload) {
       state.pagination = payload
+    },
+
+    ADD_EVENT (state, payload) {
+      state.events.push(payload)
     }
   },
 
@@ -34,6 +39,12 @@ export const event: Module<EventState, RootState> = {
       delete data.results
       commit('SET_EVENTS', events)
       commit('SET_PAGINATION', data)
+    },
+
+    async createEvent ({ commit }, payload: EventCreateReq): Promise<EventDetailRes> {
+      const data = await Api.event.createEvent(payload)
+      commit('ADD_EVENT', data)
+      return data
     }
   }
 }

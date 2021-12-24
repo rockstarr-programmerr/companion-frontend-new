@@ -24,3 +24,11 @@ export declare interface EventExtraActionUrls {
   preview_settlements: string;
   settle: string;
 }
+
+export declare interface EventCreateReq {
+  name: string;
+}
+
+export declare interface EventInviteMembersReq {
+  member_emails: string[];
+}

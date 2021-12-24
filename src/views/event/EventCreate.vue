@@ -16,15 +16,30 @@
         </h1>
       </v-col>
       <v-col cols="auto">
-        <div class="create-btn">
-          Create
+        <div
+          class="create-btn"
+          @click="createEvent"
+        >
+          <v-progress-circular
+            v-if="creating"
+            indeterminate
+            color="primary"
+            width="2"
+            size="18"
+          ></v-progress-circular>
+          <span v-else>
+            Create
+          </span>
         </div>
       </v-col>
     </v-row>
 
     <v-text-field
+      v-model="name"
       placeholder="Trip name"
       outlined
+      :error-messages="nameErrs"
+      :error-count="nameErrs.length"
       class="mt-4 rounded-0 trip-name-input"
     ></v-text-field>
 
@@ -96,9 +111,12 @@
 <script lang="ts">
 import { Api } from '@/api'
 import { SearchUserDetailRes, SearchUsersReq } from '@/interfaces/api/account'
-import { debounce, unexpectedExc } from '@/utils'
+import { debounce, snakeCaseToCamelCase, unexpectedExc } from '@/utils'
 import { Vue, Component, Watch } from 'vue-property-decorator'
 import BaseAvatar from '@/components/BaseAvatar.vue'
+import { EventCreateReq, EventInviteMembersReq } from '@/interfaces/event'
+import { assertErrCode, status } from '@/utils/status-codes'
+import { EventDetailRes } from '@/interfaces/api/event'
 
 @Component({
   components: {
@@ -106,6 +124,9 @@ import BaseAvatar from '@/components/BaseAvatar.vue'
   }
 })
 export default class EventCreate extends Vue {
+  // eslint-disable-next-line no-undef
+  [index: string]: unknown
+
   /**
    * Search for users
    */
@@ -172,6 +193,54 @@ export default class EventCreate extends Vue {
 
   removeMember (email: string): void {
     this.membersToAdd = this.membersToAdd.filter(member => member.email !== email)
+  }
+
+  /**
+   * Create event
+   */
+  name = ''
+  nameErrs = []
+  creating = false
+
+  createEvent (): void {
+    if (this.creating) return
+
+    const payload: EventCreateReq = {
+      name: this.name
+    }
+    this.$store.dispatch('event/createEvent', payload)
+      .then((event: EventDetailRes) => {
+        const url = event.extra_action_urls.invite_members
+        const payload: EventInviteMembersReq = {
+          member_emails: this.membersToAdd.map(member => member.email)
+        }
+
+        // @ts-expect-error don't care
+        this.$axios.post(url, payload)
+          .then(() => {
+            this.$router.push({
+              name: 'EventDetail',
+              params: {
+                pk: event.pk.toString()
+              }
+            })
+          })
+          .catch(unexpectedExc)
+      })
+      .catch(err => {
+        if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {
+          const data = err.response.data
+          Object.entries(data).forEach(([field, errMsgs]) => {
+            const attr = `${snakeCaseToCamelCase(field)}Errs`
+            this[attr] = errMsgs
+          })
+        } else {
+          unexpectedExc(err)
+        }
+      })
+      .finally(() => {
+        this.creating = false
+      })
   }
 }
 </script>
