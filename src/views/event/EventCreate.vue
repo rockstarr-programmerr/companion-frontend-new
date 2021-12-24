@@ -34,14 +34,61 @@
       </h2>
 
       <v-autocomplete
+        ref="searchInput"
         v-model="chosenUser"
         :items="autocompleteItems"
         :search-input.sync="text"
+        :loading="searching && fetchedUsers.length === 0"
         placeholder="Search by email"
         prepend-inner-icon="mdi-magnify"
         outlined
+        clearable
+        hide-details
         class="rounded-0 mt-4"
-      ></v-autocomplete>
+      >
+        <template #item="{ item }">
+          <v-list-item-avatar>
+            <BaseAvatar
+              :user="item.value"
+              size="36"
+            ></BaseAvatar>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ item.value.email }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </template>
+      </v-autocomplete>
+
+      <v-list>
+        <v-list-item
+          v-for="member of membersToAdd"
+          :key="member.email"
+        >
+          <v-list-item-avatar>
+            <BaseAvatar
+              :user="member"
+              size="36"
+            ></BaseAvatar>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ member.email }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn
+              icon
+              @click="removeMember(member.email)"
+            >
+              <v-icon>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
     </div>
   </v-container>
 </template>
@@ -51,11 +98,16 @@ import { Api } from '@/api'
 import { SearchUserDetailRes, SearchUsersReq } from '@/interfaces/api/account'
 import { debounce, unexpectedExc } from '@/utils'
 import { Vue, Component, Watch } from 'vue-property-decorator'
+import BaseAvatar from '@/components/BaseAvatar.vue'
 
-@Component
+@Component({
+  components: {
+    BaseAvatar
+  }
+})
 export default class EventCreate extends Vue {
   /**
-   * Add members
+   * Search for users
    */
   text = ''
   searching = false
@@ -66,7 +118,7 @@ export default class EventCreate extends Vue {
   get autocompleteItems () {
     return this.fetchedUsers.map(user => ({
       text: user.email,
-      value: user.email  // TODO
+      value: user  // TODO
     }))
   }
 
@@ -91,12 +143,35 @@ export default class EventCreate extends Vue {
     Api.account.searchUsers(params)
       .then(data => {
         const users = data.results || []
-        this.fetchedUsers = users
+        const addedEmails = this.membersToAdd.map(member => member.email)
+        this.fetchedUsers = users.filter(user => !addedEmails.includes(user.email))
       })
       .catch(unexpectedExc)
       .finally(() => {
         this.searching = false
       })
+  }
+
+  /**
+   * Add members
+   */
+  membersToAdd: SearchUserDetailRes[] = []
+
+  @Watch('chosenUser')
+  onChooseUser (user: SearchUserDetailRes | null): void {
+    if (
+      user !== null &&
+      !this.membersToAdd.map(member => member.email).includes(user.email)
+    ) {
+      this.membersToAdd.push(user)
+    }
+    this.text = ''
+    // @ts-expect-error don't care
+    this.$refs.searchInput.clearableCallback()
+  }
+
+  removeMember (email: string): void {
+    this.membersToAdd = this.membersToAdd.filter(member => member.email !== email)
   }
 }
 </script>

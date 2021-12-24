@@ -85,38 +85,40 @@
           class="list-item"
         >
           <v-list-item-content>
-            <v-row
-              justify="space-between"
-              align="center"
-            >
-              <v-col
-                cols="auto"
-                class="text-body-1 font-weight-bold"
+            <v-list-item-title>
+              <v-row
+                justify="space-between"
+                align="center"
               >
-                {{ event.name }}
-              </v-col>
-              <v-col
-                cols="auto"
-              >
-                <BaseAvatar
-                  v-for="member of getTruncatedMembers(event)"
-                  :key="member.pk"
-                  :user="member"
-                  class="ml-2"
-                  size="36"
-                ></BaseAvatar>
-                <v-avatar
-                  v-if="getRemainingMembersCount(event) > 0"
-                  size="36"
-                  color="white"
-                  class="ml-2"
+                <v-col
+                  cols="auto"
+                  class="text-body-1 font-weight-bold"
                 >
-                  <span class="text-body-2 font-weight-bold">
-                    +{{ getRemainingMembersCount(event) }}
-                  </span>
-                </v-avatar>
-              </v-col>
-            </v-row>
+                  {{ event.name }}
+                </v-col>
+                <v-col
+                  cols="auto"
+                >
+                  <BaseAvatar
+                    v-for="member of getTruncatedMembers(event)"
+                    :key="member.pk"
+                    :user="member"
+                    class="ml-2"
+                    size="36"
+                  ></BaseAvatar>
+                  <v-avatar
+                    v-if="getRemainingMembersCount(event) > 0"
+                    size="36"
+                    color="white"
+                    class="ml-2"
+                  >
+                    <span class="text-body-2 font-weight-bold">
+                      +{{ getRemainingMembersCount(event) }}
+                    </span>
+                  </v-avatar>
+                </v-col>
+              </v-row>
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
