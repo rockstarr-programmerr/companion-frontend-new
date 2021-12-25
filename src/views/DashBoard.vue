@@ -7,7 +7,7 @@
     >
       <v-col cols="auto">
         <h1 class="text-h5 font-weight-bold">
-          Good day, {{ user.nickname }}
+          Xin chào, {{ user.nickname }}
         </h1>
       </v-col>
       <v-col cols="auto">
@@ -47,7 +47,7 @@
       class="mt-15 text-center"
     >
       <div class="text-body-1 font-weight-bold">
-        You don't have any trip.
+        Bạn chưa có chuyến đi nào.
       </div>
       <v-btn
         color="primary"
@@ -58,7 +58,7 @@
         class="mt-15"
         :to="{ name: 'EventCreate' }"
       >
-        New trip
+        Tạo ngay
       </v-btn>
     </div>
 
@@ -71,7 +71,7 @@
           cols="auto"
           class="text-body-2 font-weight-bold"
         >
-          Your trips
+          Những chuyến đi bạn đang tham gia
         </v-col>
         <v-col cols="auto">
           <v-btn

@@ -12,7 +12,7 @@
     </div>
 
     <h1 class="text-h5 font-weight-bold">
-      Your notifications
+      Thông báo của bạn
     </h1>
 
     <div class="mt-6">
@@ -22,7 +22,7 @@
       ></v-skeleton-loader>
 
       <div v-else-if="eventInvitations.length === 0">
-        No notifications.
+        Không có thông báo nào.
       </div>
 
       <v-card
@@ -43,7 +43,7 @@
             </v-list-item-avatar>
             <v-list-item-content class="d-block">
               <strong>{{ invitation.event.creator.nickname }}</strong>
-              invited you to join
+              muốn mời bạn tham gia chuyến đi
               <strong>{{ invitation.event.name }}</strong>.
             </v-list-item-content>
           </v-list-item>
@@ -59,7 +59,7 @@
                 :loading="acceptings[index]"
                 @click="acceptEventInvitation(invitation)"
               >
-                Accept
+                Chấp nhận
               </v-btn>
             </v-col>
             <v-col cols="6">
@@ -70,7 +70,7 @@
                 :loading="declinings[index]"
                 @click="declineEventInvitation(invitation)"
               >
-                Decline
+                Từ chối
               </v-btn>
             </v-col>
           </v-row>

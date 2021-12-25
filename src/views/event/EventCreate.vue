@@ -12,7 +12,7 @@
       </v-col>
       <v-col cols="auto">
         <h1 class="text-h5 font-weight-bold">
-          New trip
+          Chuyến đi mới
         </h1>
       </v-col>
       <v-col cols="auto">
@@ -28,7 +28,7 @@
             size="18"
           ></v-progress-circular>
           <span v-else>
-            Create
+            Tạo
           </span>
         </div>
       </v-col>
@@ -36,7 +36,7 @@
 
     <v-text-field
       v-model="name"
-      placeholder="Trip name"
+      placeholder="Tên chuyến đi"
       outlined
       :error-messages="nameErrs"
       :error-count="nameErrs.length"
@@ -45,7 +45,7 @@
 
     <div>
       <h2 class="text-body-1 font-weight-bold">
-        Add members
+        Thêm thành viên
       </h2>
 
       <v-autocomplete
@@ -54,7 +54,7 @@
         :items="autocompleteItems"
         :search-input.sync="text"
         :loading="searching && fetchedUsers.length === 0"
-        placeholder="Search by email"
+        placeholder="Nhập email để tìm kiếm"
         prepend-inner-icon="mdi-magnify"
         outlined
         clearable

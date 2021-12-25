@@ -17,7 +17,8 @@ const config = {
   timeout: 60 * 1000, // Timeout
   headers: {
     common: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept-Language': 'vi'
     }
   }
 }

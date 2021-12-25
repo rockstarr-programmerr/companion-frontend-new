@@ -16,7 +16,7 @@
       ></v-text-field>
       <v-text-field
         v-model="password"
-        label="password"
+        label="Mật khẩu"
         outlined
         :error-messages="passwordErrs"
         :error-count="passwordErrs.length"
@@ -35,10 +35,10 @@
 
     <v-row justify="space-between">
       <v-col cols="auto">
-        <a href="#">Forgot password?</a> <!-- TODO -->
+        <a href="#">Quên mật khẩu?</a> <!-- TODO -->
       </v-col>
       <v-col cols="auto">
-        <a href="#">Register</a> <!-- TODO -->
+        <a href="#">Đăng ký</a> <!-- TODO -->
       </v-col>
     </v-row>
 
@@ -51,7 +51,7 @@
       class="mt-6"
       @click="login"
     >
-      Login
+      Đăng nhập
     </v-btn>
 
     <v-row
@@ -62,7 +62,7 @@
         <v-divider></v-divider>
       </v-col>
       <v-col cols="2" class="text-center">
-        Or
+        Hoặc
       </v-col>
       <v-col cols="5">
         <v-divider></v-divider>
@@ -79,7 +79,7 @@
         <v-icon left>
           mdi-facebook
         </v-icon>
-        Login with facebook
+        Đăng nhập bằng facebook
       </v-btn>
       <v-btn
         block
@@ -90,7 +90,7 @@
         <v-icon left>
           mdi-google
         </v-icon>
-        Login with google
+        Đăng nhập bằng google
       </v-btn>
     </div>
   </v-container>
