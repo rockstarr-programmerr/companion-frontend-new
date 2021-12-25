@@ -8,6 +8,7 @@ import { RootState } from './index'
 declare interface EventState {
   events: Event[];
   pagination: PaginatedRes | null;
+  currentEvent: Event | null;
 }
 
 export const event: Module<EventState, RootState> = {
@@ -15,7 +16,8 @@ export const event: Module<EventState, RootState> = {
 
   state: {
     events: [],
-    pagination: null
+    pagination: null,
+    currentEvent: null
   },
 
   mutations: {
@@ -29,6 +31,10 @@ export const event: Module<EventState, RootState> = {
 
     ADD_EVENT (state, payload) {
       state.events.push(payload)
+    },
+
+    SET_CURRENT_EVENT (state, payload) {
+      state.currentEvent = payload
     }
   },
 
@@ -45,6 +51,11 @@ export const event: Module<EventState, RootState> = {
       const data = await Api.event.createEvent(payload)
       commit('ADD_EVENT', data)
       return data
+    },
+
+    async getEventDetail ({ commit }, payload: Event['pk']): Promise<void> {
+      const data = await Api.event.getEventDetail(payload)
+      commit('SET_CURRENT_EVENT', data)
     }
   }
 }

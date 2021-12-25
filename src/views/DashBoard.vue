@@ -91,6 +91,12 @@
           v-for="event of events"
           :key="event.pk"
           class="list-item mb-4"
+          :to="{
+            name: 'EventDetail',
+            params: {
+              pk: event.pk.toString()
+            }
+          }"
         >
           <v-list-item-content>
             <v-list-item-title>

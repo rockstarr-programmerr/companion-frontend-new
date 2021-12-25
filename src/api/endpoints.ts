@@ -18,7 +18,8 @@ export const endpoints = {
   splitTheBill: {
     events: {
       get: '/split-the-bill/events/',
-      create: '/split-the-bill/events/'
+      create: '/split-the-bill/events/',
+      detail: '/split-the-bill/events/<pk>/'
     }
   }
 }

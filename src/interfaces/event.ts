@@ -32,3 +32,8 @@ export declare interface EventCreateReq {
 export declare interface EventInviteMembersReq {
   member_emails: string[];
 }
+
+export declare interface EventChartInfo {
+  total_fund: number;
+  total_expense: number;
+}

@@ -1,7 +1,7 @@
 import { EventDetailRes, EventListRes } from '@/interfaces/api/event'
-import { EventCreateReq } from '@/interfaces/event'
+import { Event, EventCreateReq } from '@/interfaces/event'
 import Vue from 'vue'
-import { endpoints } from './endpoints'
+import { endpoints, replacePk } from './endpoints'
 
 export const event = {
   async getEvents (): Promise<EventListRes> {
@@ -11,6 +11,12 @@ export const event = {
 
   async createEvent (payload: EventCreateReq): Promise<EventDetailRes> {
     const res = await Vue.axios.post(endpoints.splitTheBill.events.create, payload)
+    return res.data
+  },
+
+  async getEventDetail (pk: Event['pk']): Promise<EventDetailRes> {
+    const url = replacePk(endpoints.splitTheBill.events.detail, pk)
+    const res = await Vue.axios.get(url)
     return res.data
   }
 }
