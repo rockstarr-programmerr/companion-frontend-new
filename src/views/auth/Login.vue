@@ -125,31 +125,25 @@ export default class Login extends Vue {
       password: this.password
     }
 
-    const promises = [
-      this.$store.dispatch('account/login', payload),
-      this.$store.dispatch('account/getInfo')
-    ]
-
-    Promise.all(promises)
-      .then(() => {
-        this.$router.push({ name: 'DashBoard' })
-      })
-      .catch(error => {
-        if (assertErrCode(error, status.HTTP_401_UNAUTHORIZED)) {
-          this.errorMsg = error.response.data.detail
-        } else if (assertErrCode(error, status.HTTP_400_BAD_REQUEST)) {
-          const data = error.response.data
-          Object.entries(data).forEach(([field, errMsgs]) => {
-            const attr = `${snakeCaseToCamelCase(field)}Errs`
-            this[attr] = errMsgs
-          })
-        } else {
-          unexpectedExc(error)
-        }
-      })
-      .finally(() => {
-        this.loading = false
-      })
+    try {
+      await this.$store.dispatch('account/login', payload)
+      await this.$store.dispatch('account/getInfo')
+      this.$router.push({ name: 'DashBoard' })
+    } catch (error) {
+      if (assertErrCode(error, status.HTTP_401_UNAUTHORIZED)) {
+        this.errorMsg = error.response.data.detail
+      } else if (assertErrCode(error, status.HTTP_400_BAD_REQUEST)) {
+        const data = error.response.data
+        Object.entries(data).forEach(([field, errMsgs]) => {
+          const attr = `${snakeCaseToCamelCase(field)}Errs`
+          this[attr] = errMsgs
+        })
+      } else {
+        unexpectedExc(error)
+      }
+    } finally {
+      this.loading = false
+    }
   }
 }
 </script>

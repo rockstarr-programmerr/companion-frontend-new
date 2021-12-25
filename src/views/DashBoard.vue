@@ -13,10 +13,18 @@
       <v-col cols="auto">
         <v-btn
           icon
+          :to="{ name: 'Notifications' }"
         >
           <v-icon>
             mdi-bell-outline
           </v-icon>
+          <v-badge
+            v-if="eventInvitations.length > 0"
+            color="red"
+            :content="eventInvitations.length"
+            offset-x="10"
+            offset-y="-8"
+          ></v-badge>
         </v-btn>
         <v-btn
           icon
@@ -82,7 +90,7 @@
         <v-list-item
           v-for="event of events"
           :key="event.pk"
-          class="list-item"
+          class="list-item mb-4"
         >
           <v-list-item-content>
             <v-list-item-title>
@@ -128,7 +136,7 @@
 
 <script lang="ts">
 import { Event } from '@/interfaces/event'
-import { User } from '@/interfaces/user'
+import { EventInvitation, User } from '@/interfaces/user'
 import { unexpectedExc } from '@/utils'
 import { Vue, Component } from 'vue-property-decorator'
 import { mapState } from 'vuex'
@@ -137,7 +145,8 @@ import BaseAvatar from '@/components/BaseAvatar.vue'
 @Component({
   computed: {
     ...mapState('account', {
-      user: 'loggedInUser'
+      user: 'loggedInUser',
+      eventInvitations: 'eventInvitations'
     }),
     ...mapState('event', [
       'events'
@@ -153,10 +162,12 @@ export default class DashBoard extends Vue {
    */
   events!: Event[]
   user!: User
+  eventInvitations!: EventInvitation[]
   loading = true
 
   created (): void {
     this.setupEvents()
+    this.setupNotifications()
   }
 
   setupEvents (): void {
@@ -165,6 +176,11 @@ export default class DashBoard extends Vue {
       .finally(() => {
         this.loading = false
       })
+  }
+
+  setupNotifications (): void {
+    this.$store.dispatch('account/getEventInvitations')
+      .catch(unexpectedExc)
   }
 
   /**

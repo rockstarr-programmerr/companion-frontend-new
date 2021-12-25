@@ -5,6 +5,8 @@ import DashBoard from '../views/DashBoard.vue'
 
 import Login from '../views/auth/Login.vue'
 
+import Notifications from '../views/account/Notifications.vue'
+
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
 
@@ -23,6 +25,13 @@ const routes: Array<RouteConfig> = [
     name: 'Login',
     component: Login
   },
+  ...prefixWith('/account', [
+    {
+      path: '/notifications',
+      name: 'Notifications',
+      component: Notifications
+    }
+  ]),
   ...prefixWith('/events', [
     {
       path: '/new',
