@@ -47,3 +47,12 @@ export function debounce (func: CallableFunction, miliseconds: number): Callable
     }, miliseconds)
   }
 }
+
+export function formatDatetime (datetimeStr: unknown): string {
+  if (typeof datetimeStr === 'string') {
+    const datetime = new Date(datetimeStr)
+    return `${datetime.toLocaleDateString()} ${datetime.toLocaleTimeString()}`
+  } else {
+    return ''
+  }
+}

@@ -13,7 +13,7 @@
 
     <v-skeleton-loader
       v-if="loading"
-      type="card@2"
+      type="card"
     ></v-skeleton-loader>
 
     <div v-else-if="event !== null">
@@ -66,6 +66,7 @@
         color="#F4F5F7"
         class="pa-2 mt-2"
       >
+        <!-- Tình hình thu chi -->
         <v-card
           flat
           class="info-card"
@@ -172,9 +173,63 @@
             </v-row>
           </v-card-text>
         </v-card>
+
+        <!-- Giao dịch gần đây -->
+        <v-card
+          flat
+          class="info-card mt-2"
+        >
+          <v-card-title>
+            <v-row justify="space-between">
+              <v-col cols="auto">
+                Gần đây
+              </v-col>
+              <v-col cols="auto">
+                <router-link
+                  :to="{
+                    name: 'TransactionHistory'
+                  }"
+                  class="text-body-2 font-weight-bold no-decoration"
+                >
+                  Chi tiết
+                  <v-icon>
+                    mdi-chevron-right
+                  </v-icon>
+                </router-link>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-list dense>
+              <v-list-item
+                v-for="(display, index) of displayedRecentTransactions"
+                :key="index"
+                class="recent-transactions-item"
+              >
+                <v-list-item-icon>
+                  <v-icon :color="display.color">
+                    mdi-{{ display.icon }}
+                  </v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ display.text }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
+                    {{ display.created }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  {{ display.amount }}
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </v-sheet>
     </div>
 
+    <!-- Fab and dialogs -->
     <v-menu
       v-model="fabOpen"
       top
@@ -472,8 +527,9 @@
 <script lang="ts">
 import { TransactionCreateReq } from '@/interfaces/api/transaction'
 import { Event, EventChartInfo } from '@/interfaces/event'
+import { Transaction } from '@/interfaces/transaction'
 import { User } from '@/interfaces/user'
-import { unexpectedExc } from '@/utils'
+import { formatDatetime, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { mapState } from 'vuex'
@@ -503,13 +559,16 @@ export default class EventDetail extends Vue {
 
   setupEvent (): void {
     this.$store.dispatch('event/getEventDetail', this.pk)
-      .then(() => {
-        this.setupChartInfo()
-      })
+      .then(this.setupEventDetail)
       .catch(unexpectedExc)
       .finally(() => {
         this.loading = false
       })
+  }
+
+  setupEventDetail (): void {
+    this.setupChartInfo()
+    this.setupRecentTransactions()
   }
 
   get membersCount (): number {
@@ -692,7 +751,7 @@ export default class EventDetail extends Vue {
     this.$store.dispatch('transaction/createTransaction', payload)
       .then(() => {
         successHandler()
-        this.setupChartInfo()
+        this.setupEventDetail()
       })
       .catch(err => {
         if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {
@@ -846,6 +905,94 @@ export default class EventDetail extends Vue {
 
     this.addTransaction('addingTransfer', payload, successHandler, badRequestHandler)
   }
+
+  /**
+   * Recent transactions
+   */
+  loadingRecentTransactions = false
+  recentTransactions: Transaction[] = []
+
+  setupRecentTransactions (): void {
+    this.loadingRecentTransactions = true
+
+    Vue.axios.get(this.event.transactions_url, {
+      params: {
+        limit: 5
+      }
+    })
+      .then(res => {
+        this.recentTransactions = res.data.results
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.loadingRecentTransactions = false
+      })
+  }
+
+  get displayedRecentTransactions (): {
+    created: string;
+    amount: string;
+    description: string;
+    icon: string;
+    text: string;
+    color: string;
+  }[] {
+    return this.recentTransactions.map(transaction => {
+      let icon = ''
+      let text = ''
+      let color = ''
+
+      switch (transaction.transaction_type) {
+        case 'user_to_user':
+          icon = 'currency-usd'
+          color = '#2A369C'
+          // @ts-expect-error transaction of type "user_to_user" must have from_user and to_user
+          text = `${transaction.from_user.nickname} trả ${transaction.to_user.nickname}`
+          break;
+
+        case 'user_to_fund':
+          icon = 'piggy-bank'
+          color = '#69AC61'
+          // @ts-expect-error transaction of type "user_to_fund" must have from_user
+          text = `${transaction.from_user.nickname} góp quỹ`
+          break;
+
+        case 'fund_to_user':
+          icon = 'currency-usd'
+          color = '#2A369C'
+          // @ts-expect-error transaction of type "fund_to_user" must have to_user
+          text = `${transaction.to_user.nickname} nhận của quỹ`
+          break;
+
+        case 'user_expense':
+          icon = 'hand-coin'
+          color = '#EB623D'
+          // @ts-expect-error transaction of type "user_expense" must have from_user
+          text = `${transaction.from_user.nickname} chi trả`
+          break;
+
+        case 'fund_expense':
+          icon = 'hand-coin'
+          color = '#EB623D'
+          text = 'Quỹ chi trả'
+          break;
+
+        default:
+          break;
+      }
+
+      const displayed = {
+        created: formatDatetime(transaction.create_time),
+        amount: transaction.amount.toLocaleString() + ' đ',
+        description: transaction.description,
+        icon,
+        text,
+        color
+      }
+
+      return displayed
+    })
+  }
 }
 </script>
 
@@ -879,9 +1026,31 @@ export default class EventDetail extends Vue {
 
 .fab-menu {
   box-shadow: unset;
+  opacity: 0.95;
 }
 
 .fab-card {
   opacity: 0.97;
+}
+
+.no-decoration {
+  text-decoration: none;
+}
+
+.recent-transactions-item {
+  padding: 0;
+
+  [class^="v-list-item__"] {
+    white-space: normal;
+  }
+
+  .v-list-item__action {
+    font-size: 13px;
+    font-weight: bold;
+    align-self: start;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 5px 0;
+  }
 }
 </style>

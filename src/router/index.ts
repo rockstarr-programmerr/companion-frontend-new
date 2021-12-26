@@ -9,6 +9,7 @@ import Notifications from '../views/account/Notifications.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
+import TransactionHistory from '../views/event/TransactionHistory.vue'
 
 import { castToNumber, prefixWith } from './utils'
 
@@ -43,6 +44,11 @@ const routes: Array<RouteConfig> = [
       name: 'EventDetail',
       component: EventDetail,
       props: castToNumber(['pk'])
+    },
+    {
+      path: '/transaction-history',
+      name: 'TransactionHistory',
+      component: TransactionHistory
     }
   ])
 ]
