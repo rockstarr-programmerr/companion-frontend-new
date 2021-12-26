@@ -234,8 +234,9 @@
     <v-dialog
       v-if="event !== null"
       v-model="fundDialog"
+      fullscreen
     >
-      <v-card>
+      <v-card class="fab-card">
         <v-card-title>
           Thêm khoản góp
         </v-card-title>
@@ -299,8 +300,9 @@
     <v-dialog
       v-if="event !== null"
       v-model="expenseDialog"
+      fullscreen
     >
-      <v-card>
+      <v-card class="fab-card">
         <v-card-title>
           Thêm khoản chi
         </v-card-title>
@@ -357,6 +359,105 @@
                 :loading="addingExpense"
                 :disabled="!enableAddExpenseBtn"
                 @click="addExpense"
+              >
+                OK
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-if="event !== null"
+      v-model="transferDialog"
+      fullscreen
+    >
+      <v-card class="fab-card">
+        <v-card-title>
+          Thêm chuyển khoản
+        </v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-select
+              v-model="transferFrom"
+              :items="transferFromItems"
+              item-text="nickname"
+              item-value="url"
+              label="Người chuyển *"
+              outlined
+              :error-messages="transferFromErrs"
+              :error-count="transferFromErrs.length"
+              :hint="transferFrom === 'special_value_for_fund_to_user' ? 'Chuyển từ quỹ đến người nhận.' : ''"
+              :persistent-hint="transferFrom === 'special_value_for_fund_to_user'"
+            >
+              <template #item="{ item }">
+                <span v-if="item.url === 'special_value_for_fund_to_user'">
+                  <v-chip color="primary">
+                    {{ item.nickname }}
+                  </v-chip>
+                </span>
+                <span v-else>
+                  {{ item.nickname }}
+                </span>
+              </template>
+              <template #selection="{ item }">
+                <span v-if="item.url === 'special_value_for_fund_to_user'">
+                  <v-chip color="primary">
+                    {{ item.nickname }}
+                  </v-chip>
+                </span>
+                <span v-else>
+                  {{ item.nickname }}
+                </span>
+              </template>
+            </v-select>
+            <v-select
+              v-model="transferTo"
+              :items="transferToItems"
+              item-text="nickname"
+              item-value="url"
+              label="Người nhận *"
+              outlined
+              :error-messages="transferToErrs"
+              :error-count="transferToErrs.length"
+            ></v-select>
+            <v-text-field
+              v-model="transferAmount"
+              label="Số tiền *"
+              outlined
+              :error-messages="transferAmountErrs"
+              :error-count="transferAmountErrs.length"
+            ></v-text-field>
+            <v-textarea
+              v-model="transferDescription"
+              label="Nội dung"
+              outlined
+              :error-messages="transferDescriptionErrs"
+              :error-count="transferDescriptionErrs.length"
+            ></v-textarea>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-row>
+            <v-col cols="6">
+              <v-btn
+                outlined
+                block
+                depressed
+                @click="transferDialog = false"
+              >
+                Hủy
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                color="primary"
+                block
+                depressed
+                :loading="addingTransfer"
+                :disabled="!enableAddTransferBtn"
+                @click="addTransfer"
               >
                 OK
               </v-btn>
@@ -504,7 +605,7 @@ export default class EventDetail extends Vue {
       icon: 'currency-usd',
       text: 'Thêm chuyển khoản',
       color: '#2A369C',
-      dialogName: 'fundDialog'
+      dialogName: 'transferDialog'
     },
     {
       icon: 'piggy-bank',
@@ -525,7 +626,7 @@ export default class EventDetail extends Vue {
   }
 
   /**
-   * Thêm chuyển khoản
+   * Thêm khoản góp
    */
   fundDialog = false
   addingToFund = false
@@ -555,6 +656,8 @@ export default class EventDetail extends Vue {
     const successHandler = () => {
       this.fundDialog = false
       this.fundFrom = null
+      // this.fundAmount = null // NOTE: don't reset `fundAmount` for convenience: most of the time every one pay to fund the same amount
+      this.fundDescription = ''
       this.fundFromErrs = []
       this.fundAmountErrs = []
       this.fundDescriptionErrs = []
@@ -638,8 +741,9 @@ export default class EventDetail extends Vue {
 
     const successHandler = () => {
       this.expenseDialog = false
-      this.expenseAmount = null
       this.expenseFrom = null
+      this.expenseAmount = null
+      this.expenseDescription = ''
       this.expenseFromErrs = []
       this.expenseAmountErrs = []
       this.expenseDescriptionErrs = []
@@ -660,6 +764,87 @@ export default class EventDetail extends Vue {
     }
 
     this.addTransaction('addingExpense', payload, successHandler, badRequestHandler)
+  }
+
+  /**
+   * Thêm chuyển khoản
+   */
+  transferDialog = false
+  addingTransfer = false
+
+  transferFrom: User['url'] | null = null
+  transferTo: User['url'] | null = null
+  transferAmount: number | null = null
+  transferDescription = ''
+
+  transferFromErrs: string[] = []
+  transferToErrs: string[] = []
+  transferAmountErrs: string[] = []
+  transferDescriptionErrs: string[] = []
+
+  get transferFromItems (): User[] {
+    const items = this.event.members.filter(member => this.transferTo === null || this.transferTo !== member.url)
+    const specialItem = {
+      url: 'special_value_for_fund_to_user',
+      nickname: 'Quỹ'
+    }
+    // @ts-expect-error `specialItem` don't have all attr of `User` but that's fine, `url` and `nickname` is all we need
+    items.push(specialItem)
+    return items
+  }
+
+  get transferToItems (): User[] {
+    return this.event.members.filter(member => this.transferFrom === null || this.transferFrom !== member.url)
+  }
+
+  get enableAddTransferBtn (): boolean {
+    return (
+      this.transferFrom !== null &&
+      this.transferTo !== null &&
+      this.transferAmount !== null
+    )
+  }
+
+  addTransfer (): void {
+    const transactionType = this.transferFrom === 'special_value_for_fund_to_user' ? 'fund_to_user' : 'user_to_user'
+
+    const payload: TransactionCreateReq = {
+      event: this.event.url,
+      transaction_type: transactionType,
+      from_user: transactionType === 'fund_to_user' ? null : this.transferFrom,
+      to_user: this.transferTo,
+      amount: this.transferAmount,
+      description: this.transferDescription
+    }
+
+    const successHandler = () => {
+      this.transferDialog = false
+      this.transferFrom = null
+      this.transferTo = null
+      this.transferAmount = null
+      this.transferDescription = ''
+      this.transferFromErrs = []
+      this.transferToErrs = []
+      this.transferAmountErrs = []
+      this.transferDescriptionErrs = []
+    }
+
+    // @ts-expect-error don't care
+    const badRequestHandler = err => {
+      const data = err.response.data
+      Object.entries(data).forEach(([field, errMsgs]) => {
+        let attr = ''
+        if (field === 'from_user') attr = 'transferFromErrs'
+        if (field === 'to_user') attr = 'transferToErrs'
+        else if (field === 'amount') attr = 'transferAmountErrs'
+        else if (field === 'description') attr = 'transferDescriptionErrs'
+        if (attr !== '') {
+          this[attr] = errMsgs
+        }
+      })
+    }
+
+    this.addTransaction('addingTransfer', payload, successHandler, badRequestHandler)
   }
 }
 </script>
@@ -694,5 +879,9 @@ export default class EventDetail extends Vue {
 
 .fab-menu {
   box-shadow: unset;
+}
+
+.fab-card {
+  opacity: 0.97;
 }
 </style>
