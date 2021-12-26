@@ -295,6 +295,76 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-if="event !== null"
+      v-model="expenseDialog"
+    >
+      <v-card>
+        <v-card-title>
+          Thêm khoản chi
+        </v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-checkbox
+              v-model="expenseFromFund"
+              label="Trích quỹ"
+            ></v-checkbox>
+            <v-select
+              v-if="!expenseFromFund"
+              v-model="expenseFrom"
+              :items="event.members"
+              item-text="nickname"
+              item-value="url"
+              label="Người chi *"
+              outlined
+              :error-messages="expenseFromErrs"
+              :error-count="expenseFromErrs.length"
+            ></v-select>
+            <v-text-field
+              v-model="expenseAmount"
+              label="Số tiền *"
+              outlined
+              :error-messages="expenseAmountErrs"
+              :error-count="expenseAmountErrs.length"
+            ></v-text-field>
+            <v-textarea
+              v-model="expenseDescription"
+              label="Nội dung"
+              outlined
+              :error-messages="expenseDescriptionErrs"
+              :error-count="expenseDescriptionErrs.length"
+            ></v-textarea>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-row>
+            <v-col cols="6">
+              <v-btn
+                outlined
+                block
+                depressed
+                @click="expenseDialog = false"
+              >
+                Hủy
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                color="primary"
+                block
+                depressed
+                :loading="addingExpense"
+                :disabled="!enableAddExpenseBtn"
+                @click="addExpense"
+              >
+                OK
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -385,8 +455,10 @@ export default class EventDetail extends Vue {
   get chartHasData (): boolean {
     return (
       this.chartInfo !== null &&
-      this.chartInfo.total_fund !== 0 &&
-      this.chartInfo.total_expense !== 0
+      (
+        this.chartInfo.total_fund !== 0 ||
+        this.chartInfo.total_expense !== 0
+      )
     )
   }
 
@@ -407,6 +479,7 @@ export default class EventDetail extends Vue {
 
     let percentage = this.chartInfo.total_fund / this.chartInfo.total_expense
     percentage = Math.min(percentage, 1)
+    percentage = Math.max(percentage, 0.01)
 
     return percentage * 100
   }
@@ -416,6 +489,7 @@ export default class EventDetail extends Vue {
 
     let percentage = this.chartInfo.total_expense / this.chartInfo.total_fund
     percentage = Math.min(percentage, 1)
+    percentage = Math.max(percentage, 0.01)
 
     return percentage * 100
   }
@@ -442,7 +516,7 @@ export default class EventDetail extends Vue {
       icon: 'hand-coin',
       text: 'Thêm khoản chi',
       color: '#EB623D',
-      dialogName: 'fundDialog'
+      dialogName: 'expenseDialog'
     }
   ]
 
@@ -451,7 +525,7 @@ export default class EventDetail extends Vue {
   }
 
   /**
-   * Add fund (Thêm chuyển khoản)
+   * Thêm chuyển khoản
    */
   fundDialog = false
   addingToFund = false
@@ -469,9 +543,6 @@ export default class EventDetail extends Vue {
   }
 
   addToFund (): void {
-    if (this.addingToFund) return
-    this.addingToFund = true
-
     const payload: TransactionCreateReq = {
       event: this.event.url,
       transaction_type: 'user_to_fund',
@@ -481,31 +552,114 @@ export default class EventDetail extends Vue {
       description: this.fundDescription
     }
 
+    const successHandler = () => {
+      this.fundDialog = false
+      this.fundFrom = null
+      this.fundFromErrs = []
+      this.fundAmountErrs = []
+      this.fundDescriptionErrs = []
+    }
+
+    // @ts-expect-error don't care
+    const badRequestHandler = err => {
+      const data = err.response.data
+      Object.entries(data).forEach(([field, errMsgs]) => {
+        let attr = ''
+        if (field === 'from_user') attr = 'fundFromErrs'
+        else if (field === 'amount') attr = 'fundAmountErrs'
+        else if (field === 'description') attr = 'fundDescriptionErrs'
+        if (attr !== '') {
+          this[attr] = errMsgs
+        }
+      })
+    }
+
+    this.addTransaction('addingToFund', payload, successHandler, badRequestHandler)
+  }
+
+  addTransaction (
+    loadingAttr: string,
+    payload: TransactionCreateReq,
+    successHandler: CallableFunction,
+    badRequestHandler: CallableFunction
+  ): void {
+    if (this[loadingAttr]) return
+    this[loadingAttr] = true
+
     this.$store.dispatch('transaction/createTransaction', payload)
       .then(() => {
-        this.fundDialog = false
-        this.fundFrom = null
+        successHandler()
         this.setupChartInfo()
       })
       .catch(err => {
         if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {
-          const data = err.response.data
-          Object.entries(data).forEach(([field, errMsgs]) => {
-            let attr = ''
-            if (field === 'from_user') attr = 'fundFromErrs'
-            else if (field === 'amount') attr = 'fundAmountErrs'
-            else if (field === 'description') attr = 'fundDescriptionErrs'
-            if (attr !== '') {
-              this[attr] = errMsgs
-            }
-          })
+          badRequestHandler(err)
         } else {
           unexpectedExc(err)
         }
       })
       .finally(() => {
-        this.addingToFund = false
+        this[loadingAttr] = false
       })
+  }
+
+  /**
+   * Thêm khoản chi
+   */
+  expenseDialog = false
+  addingExpense = false
+  expenseFromFund = true
+
+  expenseFrom: User['url'] | null = null
+  expenseAmount: number | null = null
+  expenseDescription = ''
+
+  expenseFromErrs: string[] = []
+  expenseAmountErrs: string[] = []
+  expenseDescriptionErrs: string[] = []
+
+  get enableAddExpenseBtn (): boolean {
+    return (
+      this.expenseFromFund || this.expenseFrom !== null
+    ) && this.expenseAmount != null
+  }
+
+  addExpense (): void {
+    const transactionType = this.expenseFromFund ? 'fund_expense' : 'user_expense'
+
+    const payload: TransactionCreateReq = {
+      event: this.event.url,
+      transaction_type: transactionType,
+      from_user: transactionType === 'fund_expense' ? null : this.expenseFrom,
+      to_user: null,
+      amount: this.expenseAmount,
+      description: this.expenseDescription
+    }
+
+    const successHandler = () => {
+      this.expenseDialog = false
+      this.expenseAmount = null
+      this.expenseFrom = null
+      this.expenseFromErrs = []
+      this.expenseAmountErrs = []
+      this.expenseDescriptionErrs = []
+    }
+
+    // @ts-expect-error don't care
+    const badRequestHandler = err => {
+      const data = err.response.data
+      Object.entries(data).forEach(([field, errMsgs]) => {
+        let attr = ''
+        if (field === 'from_user') attr = 'expenseFromErrs'
+        else if (field === 'amount') attr = 'expenseAmountErrs'
+        else if (field === 'description') attr = 'expenseDescriptionErrs'
+        if (attr !== '') {
+          this[attr] = errMsgs
+        }
+      })
+    }
+
+    this.addTransaction('addingExpense', payload, successHandler, badRequestHandler)
   }
 }
 </script>
