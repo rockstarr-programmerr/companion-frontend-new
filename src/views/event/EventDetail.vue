@@ -235,6 +235,7 @@
       top
       nudge-top="60"
       content-class="fab-menu"
+      :transition="fabOpen ? 'scroll-y-reverse-transition' : 'scroll-y-transition'"
     >
       <template #activator="{ on, attrs }">
         <v-btn
@@ -259,7 +260,7 @@
           @click="onClickFabItem(item.dialogName)"
         >
           <v-list-item-content>
-            <v-list-item-title>
+            <v-list-item-title class="elevation-4">
               <v-sheet
                 :color="item.color"
                 rounded
@@ -1001,9 +1002,11 @@ export default class EventDetail extends Vue {
   color: black;
 }
 
+$chart-card-height: 170px;
+
 .right-col,
 .left-col {
-  height: 230px;
+  height: $chart-card-height;
 }
 
 .left-col .row {
@@ -1011,7 +1014,7 @@ export default class EventDetail extends Vue {
 }
 
 .right-col-bottom {
-  margin-top: 110px;
+  margin-top: $chart-card-height - 120px;
 }
 
 .fund-bar {
@@ -1026,7 +1029,10 @@ export default class EventDetail extends Vue {
 
 .fab-menu {
   box-shadow: unset;
-  opacity: 0.95;
+
+  .v-list {
+    background-color: transparent;
+  }
 }
 
 .fab-card {
