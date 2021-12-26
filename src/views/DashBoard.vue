@@ -90,7 +90,7 @@
         <v-list-item
           v-for="event of events"
           :key="event.pk"
-          class="list-item mb-4"
+          class="list-item mb-3"
           :to="{
             name: 'EventDetail',
             params: {

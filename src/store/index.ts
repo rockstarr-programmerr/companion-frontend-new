@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import { account } from './account'
 import { message } from './message'
 import { event } from './event'
+import { transaction } from './transaction'
 
 Vue.use(Vuex)
 
@@ -20,6 +21,7 @@ export default new Vuex.Store({
   modules: {
     account,
     message,
-    event
+    event,
+    transaction
   }
 })

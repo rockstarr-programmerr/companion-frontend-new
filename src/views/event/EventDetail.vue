@@ -174,12 +174,136 @@
         </v-card>
       </v-sheet>
     </div>
+
+    <v-menu
+      v-model="fabOpen"
+      top
+      nudge-top="60"
+      content-class="fab-menu"
+    >
+      <template #activator="{ on, attrs }">
+        <v-btn
+          fab
+          dark
+          bottom
+          right
+          fixed
+          color="primary"
+          v-on="on"
+          v-bind="attrs"
+        >
+          <v-icon>
+            {{ fabOpen ? 'mdi-close' : 'mdi-plus'}}
+          </v-icon>
+        </v-btn>
+      </template>
+      <v-list>
+        <v-list-item
+          v-for="item of fabItems"
+          :key="item.text"
+          @click="onClickFabItem(item.dialogName)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>
+              <v-sheet
+                :color="item.color"
+                rounded
+                dark
+                class="py-2 px-4"
+              >
+                {{ item.text }}
+              </v-sheet>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-btn
+              fab
+              small
+              dark
+              :color="item.color"
+            >
+              <v-icon>
+                mdi-{{ item.icon }}
+              </v-icon>
+            </v-btn>
+          </v-list-item-icon>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+
+    <v-dialog
+      v-if="event !== null"
+      v-model="fundDialog"
+    >
+      <v-card>
+        <v-card-title>
+          Thêm khoản góp
+        </v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-select
+              v-model="fundFrom"
+              :items="event.members"
+              item-text="nickname"
+              item-value="url"
+              label="Người góp *"
+              outlined
+              :error-messages="fundFromErrs"
+              :error-count="fundFromErrs.length"
+            ></v-select>
+            <v-text-field
+              v-model="fundAmount"
+              label="Số tiền *"
+              outlined
+              :error-messages="fundAmountErrs"
+              :error-count="fundAmountErrs.length"
+            ></v-text-field>
+            <v-textarea
+              v-model="fundDescription"
+              label="Nội dung"
+              outlined
+              :error-messages="fundDescriptionErrs"
+              :error-count="fundDescriptionErrs.length"
+            ></v-textarea>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-row>
+            <v-col cols="6">
+              <v-btn
+                outlined
+                block
+                depressed
+                @click="fundDialog = false"
+              >
+                Hủy
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                color="primary"
+                block
+                depressed
+                :loading="addingToFund"
+                :disabled="!enableAddFundBtn"
+                @click="addToFund"
+              >
+                OK
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script lang="ts">
+import { TransactionCreateReq } from '@/interfaces/api/transaction'
 import { Event, EventChartInfo } from '@/interfaces/event'
+import { User } from '@/interfaces/user'
 import { unexpectedExc } from '@/utils'
+import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { mapState } from 'vuex'
 
@@ -191,6 +315,9 @@ import { mapState } from 'vuex'
   }
 })
 export default class EventDetail extends Vue {
+  // eslint-disable-next-line no-undef
+  [index: string]: unknown
+
   @Prop(Number) readonly pk!: number
 
   /**
@@ -292,6 +419,94 @@ export default class EventDetail extends Vue {
 
     return percentage * 100
   }
+
+  /**
+   * Floating action button
+   */
+  fabOpen = false
+
+  fabItems = [
+    {
+      icon: 'currency-usd',
+      text: 'Thêm chuyển khoản',
+      color: '#2A369C',
+      dialogName: 'fundDialog'
+    },
+    {
+      icon: 'piggy-bank',
+      text: 'Thêm khoản góp',
+      color: '#69AC61',
+      dialogName: 'fundDialog'
+    },
+    {
+      icon: 'hand-coin',
+      text: 'Thêm khoản chi',
+      color: '#EB623D',
+      dialogName: 'fundDialog'
+    }
+  ]
+
+  onClickFabItem (dialogName: string): void {
+    this[dialogName] = true
+  }
+
+  /**
+   * Add fund (Thêm chuyển khoản)
+   */
+  fundDialog = false
+  addingToFund = false
+
+  fundFrom: User['url'] | null = null
+  fundAmount: number | null = null
+  fundDescription = ''
+
+  fundFromErrs: string[] = []
+  fundAmountErrs: string[] = []
+  fundDescriptionErrs: string[] = []
+
+  get enableAddFundBtn (): boolean {
+    return this.fundFrom !== null && this.fundAmount !== null
+  }
+
+  addToFund (): void {
+    if (this.addingToFund) return
+    this.addingToFund = true
+
+    const payload: TransactionCreateReq = {
+      event: this.event.url,
+      transaction_type: 'user_to_fund',
+      from_user: this.fundFrom,
+      to_user: null,
+      amount: this.fundAmount,
+      description: this.fundDescription
+    }
+
+    this.$store.dispatch('transaction/createTransaction', payload)
+      .then(() => {
+        this.fundDialog = false
+        this.fundFrom = null
+        this.setupChartInfo()
+      })
+      .catch(err => {
+        if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {
+          const data = err.response.data
+          Object.entries(data).forEach(([field, errMsgs]) => {
+            let attr = ''
+            if (field === 'from_user') attr = 'fundFromErrs'
+            else if (field === 'amount') attr = 'fundAmountErrs'
+            else if (field === 'description') attr = 'fundDescriptionErrs'
+            if (attr !== '') {
+              this[attr] = errMsgs
+            }
+          })
+        } else {
+          unexpectedExc(err)
+        }
+      })
+      .finally(() => {
+        this.addingToFund = false
+      })
+  }
 }
 </script>
 
@@ -321,5 +536,9 @@ export default class EventDetail extends Vue {
 .expense-bar {
   background-color: red;
   height: 100%;
+}
+
+.fab-menu {
+  box-shadow: unset;
 }
 </style>
