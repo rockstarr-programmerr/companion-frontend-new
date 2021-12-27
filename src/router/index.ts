@@ -10,6 +10,7 @@ import Notifications from '../views/account/Notifications.vue'
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
 import TransactionHistory from '../views/event/TransactionHistory.vue'
+import SettlePreview from '../views/event/SettlePreview.vue'
 
 import { castToNumber, prefixWith } from './utils'
 
@@ -49,6 +50,12 @@ const routes: Array<RouteConfig> = [
       path: '/:pk/transaction-history',
       name: 'TransactionHistory',
       component: TransactionHistory,
+      props: castToNumber(['pk'])
+    },
+    {
+      path: '/:pk/settle-preview',
+      name: 'SettlePreview',
+      component: SettlePreview,
       props: castToNumber(['pk'])
     }
   ])

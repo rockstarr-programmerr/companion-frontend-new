@@ -33,6 +33,7 @@
           <v-list-item
             v-for="(display, index) of displayedTransactions"
             :key="index"
+            class="transaction-history-item"
           >
             <v-list-item-icon>
               <v-icon :color="display.color">
@@ -44,7 +45,8 @@
                 {{ display.text }}
               </v-list-item-title>
               <v-list-item-subtitle class="text-caption">
-                {{ display.created }}
+                {{ display.created }} <br>
+                {{ display.description }}
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
@@ -55,6 +57,7 @@
       </v-sheet>
 
       <v-pagination
+        v-if="paginationLength > 1"
         v-model="page"
         :length="paginationLength"
         class="mt-4"
@@ -126,22 +129,38 @@ export default class TransactionHistory extends Vue {
       limit: this.itemsPerPage,
       offset
     }
+
+    this.loading = true
     this.$store.dispatch('transaction/getTransactions', { params })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.loading = false
+      })
   }
 
   nextPage (): void {
     if (this.pagination.next !== null) {
+      this.loading = true
       this.$store.dispatch('transaction/getTransactions', {
         url: this.pagination.next
       })
+        .catch(unexpectedExc)
+        .finally(() => {
+          this.loading = false
+        })
     }
   }
 
   previousPage (): void {
     if (this.pagination.previous !== null) {
+      this.loading = true
       this.$store.dispatch('transaction/getTransactions', {
         url: this.pagination.previous
       })
+        .catch(unexpectedExc)
+        .finally(() => {
+          this.loading = false
+        })
     }
   }
 
@@ -216,5 +235,18 @@ export default class TransactionHistory extends Vue {
 </script>
 
 <style scoped lang="scss">
+.transaction-history-item {
+  [class^="v-list-item__"] {
+    white-space: normal;
+  }
 
+  .v-list-item__action {
+    font-size: 13px;
+    font-weight: bold;
+    align-self: start;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 5px 0;
+  }
+}
 </style>

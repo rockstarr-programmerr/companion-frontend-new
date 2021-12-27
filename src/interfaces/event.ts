@@ -37,3 +37,9 @@ export declare interface EventChartInfo {
   total_fund: number;
   total_expense: number;
 }
+
+export declare interface Settlement {
+  from_user: User;
+  to_user: User;
+  amount: number;
+}

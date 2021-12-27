@@ -1,5 +1,6 @@
-import { EventDetailRes, EventListRes } from '@/interfaces/api/event'
+import { EventDetailRes, EventListRes, SettlementPreviewRes } from '@/interfaces/api/event'
 import { Event, EventCreateReq } from '@/interfaces/event'
+import { AxiosRequestConfig } from 'axios'
 import Vue from 'vue'
 import { endpoints, replacePk } from './endpoints'
 
@@ -17,6 +18,12 @@ export const event = {
   async getEventDetail (pk: Event['pk']): Promise<EventDetailRes> {
     const url = replacePk(endpoints.splitTheBill.events.detail, pk)
     const res = await Vue.axios.get(url)
+    return res.data
+  },
+
+  async getPreviewSettlements (pk: Event['pk'], params?: AxiosRequestConfig['params']): Promise<SettlementPreviewRes> {
+    const url = replacePk(endpoints.splitTheBill.events.previewSettlements, pk)
+    const res = await Vue.axios.get(url, { params })
     return res.data
   }
 }

@@ -45,6 +45,7 @@
               <v-list-item
                 v-for="item of menuItems"
                 :key="item.text"
+                @click="item.onClick"
               >
                 <v-list-item-icon>
                   <v-icon>
@@ -217,6 +218,7 @@
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
                     {{ display.created }}
+                    {{ display.description }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
@@ -226,6 +228,25 @@
             </v-list>
           </v-card-text>
         </v-card>
+
+        <v-btn
+          block
+          depressed
+          color="white"
+          class="mt-2"
+          large
+          :to="{
+            name: 'SettlePreview',
+            params: {
+              pk: event.pk.toString()
+            }
+          }"
+        >
+          <v-icon left>
+            mdi-calculator
+          </v-icon>
+          Chốt sổ
+        </v-btn>
       </v-sheet>
     </div>
 
@@ -579,20 +600,36 @@ export default class EventDetail extends Vue {
   /**
    * Menu items (three dots vertical)
    */
-  menuItems = [
-    {
-      icon: 'pencil-outline',
-      text: 'Chỉnh sửa'
-    },
-    {
-      icon: 'share-variant-outline',
-      text: 'Chia sẻ'
-    },
-    {
-      icon: 'calculator',
-      text: 'Chốt sổ'
-    }
-  ]
+  get menuItems (): {
+    icon: string;
+    text: string;
+    onClick: CallableFunction;
+  }[] {
+    return [
+      {
+        icon: 'pencil-outline',
+        text: 'Chỉnh sửa',
+        onClick: () => ({})
+      },
+      {
+        icon: 'share-variant-outline',
+        text: 'Chia sẻ',
+        onClick: () => ({})
+      },
+      {
+        icon: 'calculator',
+        text: 'Chốt sổ',
+        onClick: () => {
+          this.$router.push({
+            name: 'SettlePreview',
+            params: {
+              pk: this.event.pk.toString()
+            }
+          })
+        }
+      }
+    ]
+  }
 
   /**
    * Chart info (Tình hình thu chi)
