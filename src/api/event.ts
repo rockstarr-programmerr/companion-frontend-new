@@ -25,5 +25,10 @@ export const event = {
     const url = replacePk(endpoints.splitTheBill.events.previewSettlements, pk)
     const res = await Vue.axios.get(url, { params })
     return res.data
+  },
+
+  async settle (pk: Event['pk']): Promise<void> {
+    const url = replacePk(endpoints.splitTheBill.events.settle, pk)
+    await Vue.axios.post(url)
   }
 }

@@ -61,6 +61,7 @@
         depressed
         color="primary"
         class="mt-3"
+        @click="settle"
       >
         Chốt
       </v-btn>
@@ -74,8 +75,15 @@ import { PaginatedRes } from '@/interfaces/api/common'
 import { Settlement } from '@/interfaces/event'
 import { unexpectedExc } from '@/utils'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { mapMutations } from 'vuex'
 
-@Component
+@Component({
+  computed: {
+    ...mapMutations('message', {
+      showSuccess: 'SHOW_SUCCESS'
+    })
+  }
+})
 export default class SettlePreview extends Vue {
   @Prop(Number) readonly pk!: number
 
@@ -150,6 +158,32 @@ export default class SettlePreview extends Vue {
           this.loading = false
         })
     }
+  }
+
+  /**
+   * Settle
+   */
+  settling = false
+  showSuccess!: CallableFunction
+
+  settle (): void {
+    if (this.settling) return
+    this.settling = true
+
+    Api.event.settle(this.pk)
+      .then(() => {
+        this.showSuccess('Chốt sổ thành công.')
+        this.$router.push({
+          name: 'EventDetail',
+          params: {
+            pk: this.pk.toString()
+          }
+        })
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.settling = false
+      })
   }
 }
 </script>

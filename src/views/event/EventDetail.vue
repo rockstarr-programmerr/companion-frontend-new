@@ -67,6 +67,46 @@
         color="#F4F5F7"
         class="pa-2 mt-2"
       >
+        <!-- Hiển thị khi event đã chốt sổ -->
+        <v-card
+          v-if="event.is_settled"
+          flat
+          class="info-card mb-2"
+        >
+          <v-card-title>
+            Chuyến đi đã chốt sổ
+          </v-card-title>
+          <v-card-text>
+            <v-skeleton-loader
+              v-if="loadingSettlements"
+              type="paragraph"
+            ></v-skeleton-loader>
+
+            <div v-else-if="settlements.length === 0">
+              Không có giao dịch nào.
+            </div>
+
+            <v-list v-else>
+              <v-list-item
+                v-for="(settlement, index) of settlements"
+                :key="index"
+                class="px-0 text-body-1"
+              >
+                <v-list-item-content>
+                  {{ settlement.from_user.nickname }} trả
+                  {{ settlement.to_user.nickname }}
+                  {{ settlement.amount.toLocaleString() }} đ
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-checkbox
+                    :value="settlement.is_paid"
+                  ></v-checkbox>
+                </v-list-item-action>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
+
         <!-- Tình hình thu chi -->
         <v-card
           flat
@@ -217,7 +257,7 @@
                     {{ display.text }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ display.created }}
+                    {{ display.created }} <br>
                     {{ display.description }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
@@ -229,7 +269,9 @@
           </v-card-text>
         </v-card>
 
+        <!-- Hiển thị khi event chưa chốt sổ -->
         <v-btn
+          v-if="!event.is_settled"
           block
           depressed
           color="white"
@@ -252,6 +294,7 @@
 
     <!-- Fab and dialogs -->
     <v-menu
+      v-if="event !== null && !event.is_settled"
       v-model="fabOpen"
       top
       nudge-top="60"
@@ -309,7 +352,7 @@
     </v-menu>
 
     <v-dialog
-      v-if="event !== null"
+      v-if="event !== null && !event.is_settled"
       v-model="fundDialog"
       fullscreen
     >
@@ -375,7 +418,7 @@
     </v-dialog>
 
     <v-dialog
-      v-if="event !== null"
+      v-if="event !== null && !event.is_settled"
       v-model="expenseDialog"
       fullscreen
     >
@@ -446,7 +489,7 @@
     </v-dialog>
 
     <v-dialog
-      v-if="event !== null"
+      v-if="event !== null && !event.is_settled"
       v-model="transferDialog"
       fullscreen
     >
@@ -547,6 +590,8 @@
 </template>
 
 <script lang="ts">
+import { PaginatedRes } from '@/interfaces/api/common'
+import { SettlementDetailRes, SettlementListRes } from '@/interfaces/api/settlement'
 import { TransactionCreateReq } from '@/interfaces/api/transaction'
 import { Event, EventChartInfo } from '@/interfaces/event'
 import { Transaction } from '@/interfaces/transaction'
@@ -591,6 +636,10 @@ export default class EventDetail extends Vue {
   setupEventDetail (): void {
     this.setupChartInfo()
     this.setupRecentTransactions()
+
+    if (this.event.is_settled) {
+      this.setupSettlements()
+    }
   }
 
   get membersCount (): number {
@@ -605,18 +654,25 @@ export default class EventDetail extends Vue {
     text: string;
     onClick: CallableFunction;
   }[] {
-    return [
+    const items = [
       {
         icon: 'pencil-outline',
         text: 'Chỉnh sửa',
-        onClick: () => ({})
+        onClick: () => {
+          // TODO
+        }
       },
       {
         icon: 'share-variant-outline',
         text: 'Chia sẻ',
-        onClick: () => ({})
-      },
-      {
+        onClick: () => {
+          // TODO
+        }
+      }
+    ]
+
+    if (!this.event.is_settled) {
+      items.push({
         icon: 'calculator',
         text: 'Chốt sổ',
         onClick: () => {
@@ -627,8 +683,10 @@ export default class EventDetail extends Vue {
             }
           })
         }
-      }
-    ]
+      })
+    }
+
+    return items
   }
 
   /**
@@ -1030,6 +1088,29 @@ export default class EventDetail extends Vue {
 
       return displayed
     })
+  }
+
+  /**
+   * Chốt sổ
+   */
+  settlements: SettlementDetailRes[] = []
+  loadingSettlements = false
+  settlementsPagination: PaginatedRes | null = null
+
+  setupSettlements (): void {
+    this.loadingSettlements = true
+
+    Vue.axios.get(this.event.settlements_url)
+      .then(res => {
+        const data = (res.data as SettlementListRes)
+        this.settlements = data.results || []
+        delete data.results
+        this.settlementsPagination = data
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.loadingSettlements = false
+      })
   }
 }
 </script>
