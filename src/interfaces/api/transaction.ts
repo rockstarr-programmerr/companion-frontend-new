@@ -1,4 +1,5 @@
 import { Transaction } from "../transaction";
+import { PaginatedRes } from "./common";
 
 export declare interface TransactionCreateReq {
   event: string;
@@ -10,3 +11,7 @@ export declare interface TransactionCreateReq {
 }
 
 export declare interface TransactionDetailRes extends Transaction {}
+
+export declare interface TransactionListRes extends PaginatedRes {
+  results?: TransactionDetailRes[]
+}

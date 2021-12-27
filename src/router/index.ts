@@ -46,9 +46,10 @@ const routes: Array<RouteConfig> = [
       props: castToNumber(['pk'])
     },
     {
-      path: '/transaction-history',
+      path: '/:pk/transaction-history',
       name: 'TransactionHistory',
-      component: TransactionHistory
+      component: TransactionHistory,
+      props: castToNumber(['pk'])
     }
   ])
 ]

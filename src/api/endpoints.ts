@@ -22,6 +22,7 @@ export const endpoints = {
       detail: '/split-the-bill/events/<pk>/'
     },
     transactions: {
+      get: '/split-the-bill/transactions/',
       create: '/split-the-bill/transactions/',
       detail: '/split-the-bill/transactions/<pk>/'
     }

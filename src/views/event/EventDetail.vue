@@ -969,7 +969,7 @@ export default class EventDetail extends Vue {
           icon = 'hand-coin'
           color = '#EB623D'
           // @ts-expect-error transaction of type "user_expense" must have from_user
-          text = `${transaction.from_user.nickname} chi trả`
+          text = `${transaction.from_user.nickname} chi`
           break;
 
         case 'fund_expense':
