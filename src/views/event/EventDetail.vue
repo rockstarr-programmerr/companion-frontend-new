@@ -98,9 +98,15 @@
                   <strong>{{ settlement.amount.toLocaleString() }} đ</strong>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-checkbox
-                    :value="settlement.is_paid"
-                  ></v-checkbox>
+                  <div
+                    @click.capture.stop="
+                      settlement.is_paid ?
+                      prepareUnpaySettle(settlement) :
+                      preparePaySettle(settlement)
+                    "
+                  >
+                    <v-checkbox :input-value="settlement.is_paid"></v-checkbox>
+                  </div>
                 </v-list-item-action>
               </v-list-item>
             </v-list>
@@ -595,6 +601,37 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Settlement confirm dialog -->
+    <BaseDialogConfirm
+      v-model="paySettleConfirmDialog"
+      :loading="updatingSettlement"
+      @confirm="paySettlement"
+      @cancel="paySettleConfirmDialog = false"
+    >
+      <div v-if="settlementToUpdate !== null">
+        <strong>{{ settlementToUpdate.from_user.nickname }}</strong>
+        đã thanh toán cho
+        <strong>{{ settlementToUpdate.to_user.nickname }}</strong>
+        số tiền
+        <strong>{{ settlementToUpdate.amount.toLocaleString() }} đ</strong>
+      </div>
+    </BaseDialogConfirm>
+
+    <BaseDialogConfirm
+      v-model="unpaySettleConfirmDialog"
+      :loading="updatingSettlement"
+      @confirm="unpaySettlement"
+      @cancel="unpaySettleConfirmDialog = false"
+    >
+      <div v-if="settlementToUpdate !== null">
+        <strong>{{ settlementToUpdate.from_user.nickname }}</strong>
+        CHƯA thanh toán cho
+        <strong>{{ settlementToUpdate.to_user.nickname }}</strong>
+        số tiền
+        <strong>{{ settlementToUpdate.amount.toLocaleString() }} đ</strong>
+      </div>
+    </BaseDialogConfirm>
   </v-container>
 </template>
 
@@ -609,13 +646,22 @@ import { formatDatetime, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { AxiosRequestConfig } from 'axios'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
+import BaseDialogConfirm from '@/components/BaseDialogConfirm.vue'
 
 @Component({
   computed: {
     ...mapState('event', {
       event: 'currentEvent'
     })
+  },
+  methods: {
+    ...mapMutations('message', {
+      showSuccess: 'SHOW_SUCCESS'
+    })
+  },
+  components: {
+    BaseDialogConfirm
   }
 })
 export default class EventDetail extends Vue {
@@ -1162,6 +1208,53 @@ export default class EventDetail extends Vue {
       .catch(unexpectedExc)
       .finally(() => {
         this.loadingSettlements = false
+      })
+  }
+
+  settlementToUpdate: SettlementDetailRes | null = null
+  updatingSettlement = false
+  paySettleConfirmDialog = false
+  unpaySettleConfirmDialog = false
+  showSuccess!: CallableFunction
+
+  preparePaySettle (settlement: SettlementDetailRes): void {
+    this.settlementToUpdate = settlement
+    this.paySettleConfirmDialog = true
+  }
+
+  prepareUnpaySettle (settlement: SettlementDetailRes): void {
+    this.settlementToUpdate = settlement
+    this.unpaySettleConfirmDialog = true
+  }
+
+  paySettlement (): void {
+    this.updateSettlement(true)
+  }
+
+  unpaySettlement (): void {
+    this.updateSettlement(false)
+  }
+
+  updateSettlement (isPaid: boolean): void {
+    if (this.updatingSettlement || this.settlementToUpdate === null) return
+    this.updatingSettlement = true
+
+    Vue.axios.patch(this.settlementToUpdate.url, {
+      is_paid: isPaid
+    })
+      .then(() => {
+        this.showSuccess('Cập nhật thành công.')
+        this.paySettleConfirmDialog = false
+        this.unpaySettleConfirmDialog = false
+        // @ts-expect-error `settlementToUpdate` can't be null here
+        const settlement = this.settlements.find(s => s.pk === this.settlementToUpdate.pk)
+        if (settlement !== undefined) {
+          settlement.is_paid = isPaid
+        }
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.updatingSettlement = false
       })
   }
 }

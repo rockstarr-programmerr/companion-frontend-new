@@ -61,6 +61,7 @@
         depressed
         color="primary"
         class="mt-3"
+        :loading="settling"
         @click="settle"
       >
         Chốt

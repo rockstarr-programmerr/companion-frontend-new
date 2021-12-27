@@ -5,7 +5,7 @@
   >
     <v-card>
       <v-card-title>
-        Please confirm
+        Xác nhận
       </v-card-title>
       <v-card-text>
         <slot></slot>
@@ -16,7 +16,7 @@
           text
           @click="$emit('cancel')"
         >
-          Cancel
+          Hủy
         </v-btn>
         <v-btn
           color="primary"
@@ -24,7 +24,7 @@
           :loading="loading"
           @click="$emit('confirm')"
         >
-          Confirm
+          OK
         </v-btn>
       </v-card-actions>
     </v-card>
