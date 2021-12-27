@@ -42,8 +42,11 @@ export const account: Module<AccountState, RootState> = {
       state.eventInvitations = payload
     },
 
-    REMOVE_EVENT_INVITATION (state, payload) {
-      state.eventInvitations = state.eventInvitations.filter(invitation => invitation.pk !== payload)
+    SET_EVENT_INVITATE_STATUS (state, { invitationPk, isAccepted }) {
+      const event = state.eventInvitations.find(invitation => invitation.pk === invitationPk)
+      if (event !== undefined) {
+        event.status = isAccepted ? 'accepted': 'declined'
+      }
     }
   },
 
@@ -91,12 +94,18 @@ export const account: Module<AccountState, RootState> = {
 
     async acceptEventInvitation ({ commit }, payload: EventInvitation): Promise<void> {
       await Vue.axios.post(payload.accept_invitation_url)
-      commit('REMOVE_EVENT_INVITATION', payload.pk)
+      commit('SET_EVENT_INVITATE_STATUS', {
+        invitationPk: payload.pk,
+        isAccepted: true
+      })
     },
 
     async declineEventInvitation ({ commit }, payload: EventInvitation): Promise<void> {
       await Vue.axios.post(payload.decline_invitation_url)
-      commit('REMOVE_EVENT_INVITATION', payload.pk)
+      commit('SET_EVENT_INVITATE_STATUS', {
+        invitationPk: payload.pk,
+        isAccepted: false
+      })
     }
   }
 }

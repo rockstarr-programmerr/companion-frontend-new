@@ -49,7 +49,7 @@
           </v-list-item>
         </v-card-text>
         <v-card-actions>
-          <v-row>
+          <v-row v-if="invitation.status === 'pending'">
             <v-col cols="6">
               <v-btn
                 color="primary"
@@ -74,6 +74,21 @@
               </v-btn>
             </v-col>
           </v-row>
+          <div v-else-if="invitation.status === 'accepted'">
+            <router-link
+              :to="{
+                name: 'EventDetail',
+                params: {
+                  pk: invitation.event.pk.toString()
+                }
+              }"
+            >
+              Xem chuyến đi
+            </router-link>
+          </div>
+          <v-chip v-else>
+            Đã từ chối
+          </v-chip>
         </v-card-actions>
       </v-card>
     </div>
@@ -84,7 +99,7 @@
 import { EventInvitation, User } from '@/interfaces/user'
 import { unexpectedExc } from '@/utils'
 import { Vue, Component } from 'vue-property-decorator'
-import { mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 import BaseAvatar from '@/components/BaseAvatar.vue'
 
 @Component({
@@ -92,6 +107,11 @@ import BaseAvatar from '@/components/BaseAvatar.vue'
     ...mapState('account', {
       user: 'loggedInUser',
       eventInvitations: 'eventInvitations'
+    })
+  },
+  methods: {
+    ...mapMutations('message', {
+      showSucces: 'SHOW_SUCCESS'
     })
   },
   components: {
@@ -129,12 +149,16 @@ export default class Notifications extends Vue {
    */
   acceptings: { [index: number]: boolean } = {}
   declinings: { [index: number]: boolean } = {}
+  showSucces!: CallableFunction
 
   acceptEventInvitation (invitation: EventInvitation): void {
     if (this.acceptings[invitation.pk]) return
     this.acceptings[invitation.pk] = true
 
     this.$store.dispatch('account/acceptEventInvitation', invitation)
+      .then(() => {
+        this.showSucces('Tham gia chuyến đi thành công.')
+      })
       .catch(unexpectedExc)
       .finally(() => {
         this.acceptings[invitation.pk] = false
@@ -146,6 +170,9 @@ export default class Notifications extends Vue {
     this.declinings[invitation.pk] = true
 
     this.$store.dispatch('account/declineEventInvitation', invitation)
+      .then(() => {
+        this.showSucces('Từ chối tham gia chuyến đi thành công.')
+      })
       .catch(unexpectedExc)
       .finally(() => {
         this.declinings[invitation.pk] = false

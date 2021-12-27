@@ -90,12 +90,12 @@
               <v-list-item
                 v-for="(settlement, index) of settlements"
                 :key="index"
-                class="px-0 text-body-1"
+                class="px-0"
               >
                 <v-list-item-content>
                   {{ settlement.from_user.nickname }} trả
                   {{ settlement.to_user.nickname }}
-                  {{ settlement.amount.toLocaleString() }} đ
+                  <strong>{{ settlement.amount.toLocaleString() }} đ</strong>
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-checkbox
@@ -104,6 +104,15 @@
                 </v-list-item-action>
               </v-list-item>
             </v-list>
+
+            <v-pagination
+              v-if="settlementsPaginationLength > 1"
+              v-model="settlementPage"
+              :length="settlementsPaginationLength"
+              class="mt-4"
+              @next="nextPageSettlement"
+              @previous="previousPageSettlement"
+            ></v-pagination>
           </v-card-text>
         </v-card>
 
@@ -598,7 +607,8 @@ import { Transaction } from '@/interfaces/transaction'
 import { User } from '@/interfaces/user'
 import { formatDatetime, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { AxiosRequestConfig } from 'axios'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { mapState } from 'vuex'
 
 @Component({
@@ -1096,11 +1106,53 @@ export default class EventDetail extends Vue {
   settlements: SettlementDetailRes[] = []
   loadingSettlements = false
   settlementsPagination: PaginatedRes | null = null
+  itemsPerPage = 10
+  settlementPage = 1
 
-  setupSettlements (): void {
+  get settlementsPaginationLength (): number {
+    if (this.settlementsPagination !== null) {
+      return Math.ceil(this.settlementsPagination.count / this.itemsPerPage)
+    } else {
+      return 0
+    }
+  }
+
+  @Watch('settlementPage')
+  onSettlementPageChange (pageNum: number) {
+    const offset = (pageNum - 1) * this.itemsPerPage
+    const params = {
+      limit: this.itemsPerPage,
+      offset
+    }
+    this.setupSettlements(params)
+  }
+
+  nextPageSettlement (): void {
+    if (this.settlementsPagination !== null && this.settlementsPagination.next !== null) {
+      this.loading = true
+      Vue.axios.get(this.settlementsPagination.next)
+        .catch(unexpectedExc)
+        .finally(() => {
+          this.loading = false
+        })
+    }
+  }
+
+  previousPageSettlement (): void {
+    if (this.settlementsPagination !== null && this.settlementsPagination.previous !== null) {
+      this.loading = true
+      Vue.axios.get(this.settlementsPagination.previous)
+        .catch(unexpectedExc)
+        .finally(() => {
+          this.loading = false
+        })
+    }
+  }
+
+  setupSettlements (params?: AxiosRequestConfig['params']): void {
     this.loadingSettlements = true
 
-    Vue.axios.get(this.event.settlements_url)
+    Vue.axios.get(this.event.settlements_url, { params })
       .then(res => {
         const data = (res.data as SettlementListRes)
         this.settlements = data.results || []

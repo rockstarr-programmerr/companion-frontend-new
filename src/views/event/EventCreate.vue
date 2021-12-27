@@ -117,10 +117,16 @@ import BaseAvatar from '@/components/BaseAvatar.vue'
 import { EventCreateReq, EventInviteMembersReq } from '@/interfaces/event'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { EventDetailRes } from '@/interfaces/api/event'
+import { mapMutations } from 'vuex'
 
 @Component({
   components: {
     BaseAvatar
+  },
+  methods: {
+    ...mapMutations('message', {
+      showSucces: 'SHOW_SUCCESS'
+    })
   }
 })
 export default class EventCreate extends Vue {
@@ -201,6 +207,7 @@ export default class EventCreate extends Vue {
   name = ''
   nameErrs = []
   creating = false
+  showSucces!: CallableFunction
 
   createEvent (): void {
     if (this.creating) return
@@ -218,6 +225,7 @@ export default class EventCreate extends Vue {
         // @ts-expect-error don't care
         this.$axios.post(url, payload)
           .then(() => {
+            this.showSucces('Tạo chuyến đi thành công.')
             this.$router.push({
               name: 'EventDetail',
               params: {

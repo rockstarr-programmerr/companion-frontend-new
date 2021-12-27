@@ -16,6 +16,7 @@ declare interface _Creator {
 }
 
 declare interface _Event {
+  pk: number;
   name: string;
   creator: _Creator;
 }

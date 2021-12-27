@@ -78,7 +78,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { mapMutations } from 'vuex'
 
 @Component({
-  computed: {
+  methods: {
     ...mapMutations('message', {
       showSuccess: 'SHOW_SUCCESS'
     })

@@ -5,12 +5,12 @@
       align="center"
       class="py-9"
     >
-      <v-col cols="auto">
+      <v-col cols="8">
         <h1 class="text-h5 font-weight-bold">
           Xin chào, {{ user.nickname }}
         </h1>
       </v-col>
-      <v-col cols="auto">
+      <v-col cols="4" class="text-right">
         <v-btn
           icon
           :to="{ name: 'Notifications' }"
