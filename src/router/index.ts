@@ -9,6 +9,7 @@ import Notifications from '../views/account/Notifications.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
+import EventUpdate from '../views/event/EventUpdate.vue'
 import TransactionHistory from '../views/event/TransactionHistory.vue'
 import SettlePreview from '../views/event/SettlePreview.vue'
 
@@ -44,6 +45,12 @@ const routes: Array<RouteConfig> = [
       path: '/:pk',
       name: 'EventDetail',
       component: EventDetail,
+      props: castToNumber(['pk'])
+    },
+    {
+      path: '/:pk/edit',
+      name: 'EventUpdate',
+      component: EventUpdate,
       props: castToNumber(['pk'])
     },
     {

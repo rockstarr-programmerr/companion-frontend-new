@@ -1,6 +1,6 @@
 import { Api } from '@/api'
 import { PaginatedRes } from '@/interfaces/api/common'
-import { EventDetailRes } from '@/interfaces/api/event'
+import { EventDetailRes, EventUpdateReq } from '@/interfaces/api/event'
 import { Event, EventCreateReq } from '@/interfaces/event'
 import { Module } from 'vuex'
 import { RootState } from './index'
@@ -55,6 +55,14 @@ export const event: Module<EventState, RootState> = {
 
     async getEventDetail ({ commit }, payload: Event['pk']): Promise<void> {
       const data = await Api.event.getEventDetail(payload)
+      commit('SET_CURRENT_EVENT', data)
+    },
+
+    async updateEvent ({ commit }, payload: {
+      pk: Event['pk'],
+      body: EventUpdateReq
+    }): Promise<void> {
+      const data = await Api.event.updateEvent(payload.pk, payload.body)
       commit('SET_CURRENT_EVENT', data)
     }
   }

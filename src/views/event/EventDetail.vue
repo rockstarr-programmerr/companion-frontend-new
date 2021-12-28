@@ -256,7 +256,17 @@
             </v-row>
           </v-card-title>
           <v-card-text>
-            <v-list dense>
+            <v-skeleton-loader
+              v-if="loadingRecentTransactions"
+              type="paragraph"
+            ></v-skeleton-loader>
+            <div v-else-if="displayedRecentTransactions.length === 0">
+              Chưa có giao dịch nào.
+            </div>
+            <v-list
+              v-else
+              dense
+            >
               <v-list-item
                 v-for="(display, index) of displayedRecentTransactions"
                 :key="index"
@@ -715,7 +725,12 @@ export default class EventDetail extends Vue {
         icon: 'pencil-outline',
         text: 'Chỉnh sửa',
         onClick: () => {
-          // TODO
+          this.$router.push({
+            name: 'EventUpdate',
+            params: {
+              pk: this.event.pk.toString()
+            }
+          })
         }
       },
       {
@@ -1164,7 +1179,7 @@ export default class EventDetail extends Vue {
   }
 
   @Watch('settlementPage')
-  onSettlementPageChange (pageNum: number) {
+  onSettlementPageChange (pageNum: number): void {
     const offset = (pageNum - 1) * this.itemsPerPage
     const params = {
       limit: this.itemsPerPage,
