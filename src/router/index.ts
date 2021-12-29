@@ -12,6 +12,7 @@ import EventDetail from '../views/event/EventDetail.vue'
 import EventUpdate from '../views/event/EventUpdate.vue'
 import EventMembers from '../views/event/EventMembers.vue'
 import EventShare from '../views/event/EventShare.vue'
+import JoinWithQR from '../views/event/JoinWithQR.vue'
 import TransactionHistory from '../views/event/TransactionHistory.vue'
 import SettlePreview from '../views/event/SettlePreview.vue'
 
@@ -29,6 +30,12 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/qr/:pk/:token',
+    name: 'JoinWithQR',
+    component: JoinWithQR,
+    props: true
   },
   ...prefixWith('/account', [
     {

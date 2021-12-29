@@ -69,7 +69,8 @@
 
       <div class="mt-8 font-italic">
         <p>
-          Người dùng quét mã QR hoặc bấm vào liên kết trên sẽ tự động được thêm vào chuyến đi của bạn.
+          Bạn bè của bạn có thể quét mã QR, hoặc click vào liên kết trên
+          để tham gia ngay chuyến đi.
         </p>
         <p>
           Bạn có thể vô hiệu hoá liên kết đã chia sẻ bằng cách
@@ -140,7 +141,7 @@ export default class EventShare extends Vue {
   get joinWithQrUrl (): string {
     if (this.event === null) return ''
     const host = process.env.VUE_APP_WEB_ROOT
-    return `${host}/qr/${this.event.join_token}`
+    return `${host}/qr/${this.pk}/${this.event.join_token}`
   }
 
   /**
@@ -176,7 +177,7 @@ export default class EventShare extends Vue {
 .join-with-qr {
   & ::v-deep input {
     color: black;
-    font-size: 15px;
+    font-size: 14px;
   }
   & ::v-deep .v-icon.v-icon--disabled {
     color: black !important;

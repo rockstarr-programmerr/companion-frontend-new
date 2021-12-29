@@ -23,7 +23,8 @@ export const endpoints = {
       update: '/split-the-bill/events/<pk>/',
       delete: '/split-the-bill/events/<pk>/',
       previewSettlements: '/split-the-bill/events/<pk>/preview-settlements/',
-      settle: '/split-the-bill/events/<pk>/settle/'
+      settle: '/split-the-bill/events/<pk>/settle/',
+      joinWithQr: '/split-the-bill/events/join-with-qr/'
     },
     transactions: {
       get: '/split-the-bill/transactions/',

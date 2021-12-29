@@ -41,5 +41,9 @@ export const event = {
   async settle (pk: Event['pk']): Promise<void> {
     const url = replacePk(endpoints.splitTheBill.events.settle, pk)
     await Vue.axios.post(url)
+  },
+
+  async joinWithQr (params: AxiosRequestConfig['params']): Promise<void> {
+    await Vue.axios.post(endpoints.splitTheBill.events.joinWithQr, undefined, { params })
   }
 }
