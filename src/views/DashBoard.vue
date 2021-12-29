@@ -28,6 +28,7 @@
         </v-btn>
         <v-btn
           icon
+          :to="{ name: 'MyInfo' }"
         >
           <v-icon>
             mdi-cog-outline

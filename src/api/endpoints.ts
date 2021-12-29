@@ -11,8 +11,8 @@ export const endpoints = {
       search: '/users/search/'
     },
     me: {
-      myInfo: 'users/me/info/',
-      updateProfile: '/me/'
+      myInfo: '/users/me/info/',
+      updateProfile: '/users/me/info/'
     }
   },
   splitTheBill: {

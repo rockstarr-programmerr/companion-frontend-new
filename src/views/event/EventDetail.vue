@@ -3,7 +3,7 @@
     <div>
       <v-btn
         icon
-        @click="$router.back()"
+        @click="$router.push({ name: 'DashBoard' })"
       >
         <v-icon>
           mdi-arrow-left-thin

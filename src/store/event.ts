@@ -100,7 +100,7 @@ export const event: Module<EventState, RootState> = {
       commit('REMOVE_MEMBERS', payload.member_pks)
     },
 
-    async resetQrCode ({ commit, state, dispatch }): Promise<void> {
+    async resetQrCode ({ state, dispatch }): Promise<void> {
       if (state.currentEvent === null) return
       await Vue.axios.post(state.currentEvent.extra_action_urls.reset_qr)
       dispatch('getEventDetail', state.currentEvent.pk)

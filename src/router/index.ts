@@ -6,6 +6,8 @@ import DashBoard from '../views/DashBoard.vue'
 import Login from '../views/auth/Login.vue'
 
 import Notifications from '../views/account/Notifications.vue'
+import MyInfo from '../views/account/MyInfo.vue'
+import MyInfoChangeName from '../views/account/MyInfoChangeName.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
@@ -42,6 +44,16 @@ const routes: Array<RouteConfig> = [
       path: '/notifications',
       name: 'Notifications',
       component: Notifications
+    },
+    {
+      path: '/my-info',
+      name: 'MyInfo',
+      component: MyInfo
+    },
+    {
+      path: '/change-name',
+      name: 'MyInfoChangeName',
+      component: MyInfoChangeName
     }
   ]),
   ...prefixWith('/events', [
