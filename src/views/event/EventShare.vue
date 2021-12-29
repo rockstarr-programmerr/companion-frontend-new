@@ -73,7 +73,21 @@
         </p>
         <p>
           Bạn có thể vô hiệu hoá liên kết đã chia sẻ bằng cách
-          làm mới liên kết.
+          <a
+            href="#"
+            @click="resetQrCode"
+            class="font-weight-bold"
+          >
+            làm mới liên kết.
+          </a>
+          <v-progress-circular
+            v-if="resetting"
+            indeterminate
+            color="primary"
+            width="2"
+            size="18"
+            class="ml-2"
+          ></v-progress-circular>
         </p>
       </div>
     </div>
@@ -135,6 +149,25 @@ export default class EventShare extends Vue {
   copyJoinLink (): void {
     navigator.clipboard.writeText(this.joinWithQrUrl)
     this.showSucces('Link copied.')
+  }
+
+  /**
+   * Reset QR code
+   */
+  resetting = false
+
+  resetQrCode (): void {
+    if (this.resetting) return
+    this.resetting = true
+
+    this.$store.dispatch('event/resetQrCode')
+      .then(() => {
+        this.showSucces('Làm mới liên kết thành công.')
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.resetting = false
+      })
   }
 }
 </script>
