@@ -752,7 +752,12 @@ export default class EventDetail extends Vue {
         icon: 'share-variant-outline',
         text: 'Chia sẻ',
         onClick: () => {
-          // TODO
+          this.$router.push({
+            name: 'EventShare',
+            params: {
+              pk: this.event.pk.toString()
+            }
+          })
         }
       },
       {

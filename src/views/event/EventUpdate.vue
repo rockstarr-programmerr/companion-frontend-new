@@ -11,7 +11,7 @@
       </v-btn>
     </div>
 
-    <h1 class="test-h5 font-weight-bold">
+    <h1 class="text-h5 font-weight-bold">
       Chỉnh sửa chuyến đi
     </h1>
 

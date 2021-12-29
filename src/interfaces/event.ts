@@ -5,6 +5,7 @@ export declare interface Event {
   pk: number;
   name: string;
   qr_code: string;
+  join_token: string;
   creator: User;
   members: User[];
   is_settled: boolean;
