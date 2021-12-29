@@ -145,7 +145,7 @@ export default class EventCreate extends Vue {
   get autocompleteItems () {
     return this.fetchedUsers.map(user => ({
       text: user.email,
-      value: user  // TODO
+      value: user
     }))
   }
 
@@ -222,8 +222,7 @@ export default class EventCreate extends Vue {
           member_emails: this.membersToAdd.map(member => member.email)
         }
 
-        // @ts-expect-error don't care
-        this.$axios.post(url, payload)
+        Vue.axios.post(url, payload)
           .then(() => {
             this.showSucces('Tạo chuyến đi thành công.')
             this.$router.push({

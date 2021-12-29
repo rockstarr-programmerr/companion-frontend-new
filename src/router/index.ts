@@ -55,7 +55,7 @@ const routes: Array<RouteConfig> = [
       props: castToNumber(['pk'])
     },
     {
-      path: '/:pk/edit',
+      path: '/:pk/members',
       name: 'EventMembers',
       component: EventMembers,
       props: castToNumber(['pk'])

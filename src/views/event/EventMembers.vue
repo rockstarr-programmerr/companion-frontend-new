@@ -21,7 +21,7 @@
     >
       <v-card flat>
         <v-card-title>
-          Các thành viên đã tham gia
+          Thành viên đã tham gia
         </v-card-title>
 
         <v-card-text>
@@ -42,9 +42,7 @@
                 class="px-0"
               >
                 <v-list-item-avatar>
-                  <BaseAvatar
-                    :user="member"
-                  ></BaseAvatar>
+                  <BaseAvatar :user="member"></BaseAvatar>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>
@@ -92,6 +90,116 @@
           </div>
         </v-card-text>
       </v-card>
+
+      <v-card
+        flat
+        class="mt-2"
+      >
+        <v-card-title>
+          Mời thêm
+        </v-card-title>
+
+        <v-card-text>
+          <v-autocomplete
+            ref="searchInput"
+            v-model="chosenUser"
+            :items="autocompleteItems"
+            :search-input.sync="text"
+            :loading="searching && fetchedUsers.length === 0"
+            placeholder="Nhập email để tìm kiếm"
+            prepend-inner-icon="mdi-magnify"
+            outlined
+            clearable
+            hide-details
+          >
+            <template #item="{ item }">
+              <v-list-item-avatar>
+                <BaseAvatar
+                  :user="item.value"
+                  size="36"
+                ></BaseAvatar>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ item.value.email }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </template>
+          </v-autocomplete>
+        </v-card-text>
+      </v-card>
+
+      <v-card
+        flat
+        class="mt-2"
+      >
+        <v-card-title>
+          Lời mời đã gửi
+        </v-card-title>
+
+        <v-card-text>
+          <v-skeleton-loader
+            v-if="loadingInvitations"
+            type="paragraph"
+          ></v-skeleton-loader>
+
+          <div v-else-if="invitations.length === 0">
+            Không có lời mời nào.
+          </div>
+
+          <v-list v-else>
+            <v-list-item
+              v-for="invitation of invitations"
+              :key="invitation.pk"
+              class="px-0"
+            >
+              <v-list-item-avatar>
+                <BaseAvatar :user="invitation.user"></BaseAvatar>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ invitation.user.nickname }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ invitation.user.email }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-icon>
+                <v-menu
+                  left
+                  nudge-left="40"
+                >
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-on="on"
+                      v-bind="attrs"
+                    >
+                      <v-icon>
+                        mdi-dots-vertical
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list dense>
+                    <v-list-item>
+                      <v-list-item-icon>
+                        <v-icon>
+                          mdi-delete-outline
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Hủy lời mời
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-list-item-icon>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
     </v-sheet>
 
     <BaseDialogConfirm
@@ -107,14 +215,17 @@
 </template>
 
 <script lang="ts">
-import { Event } from '@/interfaces/event'
-import { unexpectedExc } from '@/utils'
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Event, EventInviteMembersReq } from '@/interfaces/event'
+import { debounce, unexpectedExc } from '@/utils'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { mapState, mapMutations } from 'vuex'
 import { User } from '@/interfaces/user'
-import { RemoveMembersReq } from '@/interfaces/api/event'
+import { EventInivitationsListRes, EventInvitationDetailRes, RemoveMembersReq } from '@/interfaces/api/event'
 import BaseAvatar from '@/components/BaseAvatar.vue'
 import BaseDialogConfirm from '@/components/BaseDialogConfirm.vue'
+import { AxiosRequestConfig } from 'axios'
+import { Api } from '@/api'
+import { SearchUserDetailRes, SearchUsersReq } from '@/interfaces/api/account'
 
 @Component({
   computed: {
@@ -152,6 +263,9 @@ export default class EventMembers extends Vue {
 
   setupEvent (): void {
     this.$store.dispatch('event/getEventDetail', this.pk)
+      .then(() => {
+        this.setupInvitations()
+      })
       .catch(unexpectedExc)
       .finally(() => {
         this.loadingEvent = false
@@ -186,6 +300,97 @@ export default class EventMembers extends Vue {
       .finally(() => {
         this.removing = false
       })
+  }
+
+  /**
+   * Invitations
+   */
+  loadingInvitations = true
+  invitations: EventInvitationDetailRes[] = []
+
+  setupInvitations (): void {
+    const params: AxiosRequestConfig['params'] = {
+      status__in: 'pending'
+    }
+
+    Vue.axios.get(this.event.invitations_url, { params })
+      .then(res => {
+        const data: EventInivitationsListRes = res.data
+        this.invitations = data.results || []
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.loadingInvitations = false
+      })
+  }
+
+  /**
+   * Search for users to invite
+   */
+  text = ''
+  searching = false
+  chosenUser: SearchUserDetailRes | null = null
+  fetchedUsers: SearchUserDetailRes[] = []
+
+  // eslint-disable-next-line
+  get autocompleteItems () {
+    return this.fetchedUsers.map(user => ({
+      text: user.email,
+      value: user
+    }))
+  }
+
+  @Watch('text')
+  onSearch (text: string): void {
+    debounce(this.searchUsers, 200)(text)
+  }
+
+  searchUsers (text: string): void {
+    if (this.searching) return
+    if (text === '' || text === null) {
+      this.fetchedUsers = []
+      return
+    }
+
+    this.searching = true
+
+    const memberEmails = this.event.members.map(member => member.email)
+    const invitedEmails = this.invitations.map(invitation => invitation.user.email)
+    const excludeEmails = memberEmails.concat(invitedEmails)
+
+    const params: SearchUsersReq = {
+      nickname_or_email__icontains: text,
+      exclude_emails: excludeEmails.join(',')
+    }
+
+    Api.account.searchUsers(params)
+      .then(data => {
+        this.fetchedUsers = data.results || []
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.searching = false
+      })
+  }
+
+  /**
+   * Invite user
+   */
+  @Watch('chosenUser')
+  onChoosingUser (user: SearchUserDetailRes, oldUser: SearchUserDetailRes | null): void {
+    if (oldUser !== null && user.email === oldUser.email) return
+
+    const url = this.event.extra_action_urls.invite_members
+    const payload: EventInviteMembersReq = {
+      member_emails: [user.email]
+    }
+
+    Vue.axios.post(url, payload)
+      .then(() => {
+        this.showSucces('Thêm lời mời thành công.')
+        this.setupInvitations()
+      })
+      .catch(unexpectedExc)
   }
 }
 </script>

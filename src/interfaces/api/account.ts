@@ -48,6 +48,7 @@ export declare interface ResetPasswordReq {
 
 export declare interface SearchUsersReq {
   nickname_or_email__icontains: string;
+  exclude_emails?: string;
 }
 
 export declare interface SearchUserDetailRes {
