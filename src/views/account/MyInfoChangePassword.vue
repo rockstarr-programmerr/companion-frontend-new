@@ -11,7 +11,7 @@
       </v-btn>
     </div>
 
-    <h1 class="text-h5 font-weight-bold mb-4">
+    <h1 class="text-h5 font-weight-bold mb-6">
       Đổi mật khẩu
     </h1>
 

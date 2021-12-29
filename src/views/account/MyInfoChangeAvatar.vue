@@ -12,16 +12,17 @@
     </div>
 
     <h1 class="text-h5 font-weight-bold mb-6">
-      Tên hiển thị
+      Thảy ảnh đại diện
     </h1>
 
-    <v-text-field
-      v-model="nickname"
-      label="Tên hiển thị"
+    <v-file-input
+      v-model="avatar"
+      label="Avatar"
+      prepend-icon="mdi-camera"
       outlined
-      :error-messages="nicknameErrs"
-      :error-count="nicknameErrs.length"
-    ></v-text-field>
+      :error-messages="avatarErrs"
+      :error-count="avatarErrs.length"
+    ></v-file-input>
 
     <v-btn
       color="primary"
@@ -42,7 +43,7 @@ import { User } from '@/interfaces/user'
 import { unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component } from 'vue-property-decorator'
-import { mapMutations, mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 @Component({
   computed: {
@@ -56,7 +57,7 @@ import { mapMutations, mapState } from 'vuex'
     })
   }
 })
-export default class MyInfoChangeName extends Vue {
+export default class MyInfoChangeAvatar extends Vue {
   // eslint-disable-next-line no-undef
   [index: string]: unknown
 
@@ -67,14 +68,30 @@ export default class MyInfoChangeName extends Vue {
   user!: User
 
   created (): void {
-    this.nickname = this.user.nickname
+    if (this.user.avatar !== null) {
+      Vue.axios.get(this.user.avatar, {
+        // @ts-expect-error this is our custom config
+        noAuthorization: true
+      })
+        .then(res => {
+          if (this.user.avatar !== null) {
+            const parts = this.user.avatar.split('/')
+            const avatarName = parts[parts.length - 1]
+            const file = new File([res.data], avatarName)
+            this.avatar = file
+            this.originalAvatar = file
+          }
+        })
+    }
   }
 
   /**
    * Change name
    */
-  nickname = ''
-  nicknameErrs: string[] = []
+  avatar: File | null = null
+  avatarErrs: string[] = []
+  originalAvatar: File | null = null
+
   updating = false
   showSuccess!: CallableFunction
 
@@ -82,8 +99,13 @@ export default class MyInfoChangeName extends Vue {
     if (this.updating) return
     this.updating = true
 
+    if (this.avatar === this.originalAvatar) {
+      this.$router.push({ name: 'MyInfo' })
+      return
+    }
+
     const payload: UpdateProfileReq = {
-      nickname: this.nickname
+      avatar: this.avatar
     }
     this.$store.dispatch('account/updateProfile', payload)
       .then(() => {
@@ -93,7 +115,7 @@ export default class MyInfoChangeName extends Vue {
       .catch(err => {
         if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {
           const data = err.response.data
-          this.nicknameErrs = data.nickname || []
+          this.avatarErrs = data.avatar || []
         } else {
           unexpectedExc(err)
         }

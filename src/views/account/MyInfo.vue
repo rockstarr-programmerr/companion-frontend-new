@@ -3,7 +3,7 @@
     <div>
       <v-btn
         icon
-        @click="$router.back()"
+        @click="$router.push({ name: 'DashBoard' })"
       >
         <v-icon>
           mdi-arrow-left-thin
@@ -16,15 +16,15 @@
     </h1>
 
     <div class="text-center">
-      <BaseAvatar></BaseAvatar>
-      <div
-        class="mt-2"
-      >
-        Thay đổi
+      <BaseAvatar size="78"></BaseAvatar>
+      <div class="mt-2">
+        <router-link :to="{ name: 'MyInfoChangeAvatar' }">
+          Thay đổi
+        </router-link>
       </div>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-6">
       <h2 class="text-body-1 font-weight-bold">
         Thông tin cá nhân
       </h2>
@@ -87,7 +87,7 @@
       <v-divider></v-divider>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-6">
       <h2 class="text-body-1 font-weight-bold">
         Hệ thống
       </h2>
