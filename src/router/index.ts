@@ -8,6 +8,7 @@ import Login from '../views/auth/Login.vue'
 import Notifications from '../views/account/Notifications.vue'
 import MyInfo from '../views/account/MyInfo.vue'
 import MyInfoChangeName from '../views/account/MyInfoChangeName.vue'
+import MyInfoChangePassword from '../views/account/MyInfoChangePassword.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
@@ -54,6 +55,11 @@ const routes: Array<RouteConfig> = [
       path: '/change-name',
       name: 'MyInfoChangeName',
       component: MyInfoChangeName
+    },
+    {
+      path: '/change-password',
+      name: 'MyInfoChangePassword',
+      component: MyInfoChangePassword
     }
   ]),
   ...prefixWith('/events', [

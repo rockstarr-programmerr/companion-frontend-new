@@ -63,6 +63,8 @@
         class="text-body-2 py-2"
         no-gutters
         align="center"
+        v-ripple
+        @click="$router.push({ name: 'MyInfoChangePassword' })"
       >
         <v-col cols="1">
           <v-icon>

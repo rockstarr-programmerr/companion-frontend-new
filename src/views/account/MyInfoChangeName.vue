@@ -75,7 +75,6 @@ export default class MyInfoChangeName extends Vue {
    */
   nickname = ''
   nicknameErrs: string[] = []
-  nicknameDialog = false
   updating = false
   showSuccess!: CallableFunction
 
