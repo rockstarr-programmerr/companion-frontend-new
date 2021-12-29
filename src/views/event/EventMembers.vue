@@ -111,6 +111,7 @@
             outlined
             clearable
             hide-details
+            no-data-text="Không có kết quả nào."
           >
             <template #item="{ item }">
               <v-list-item-avatar>
@@ -181,7 +182,7 @@
                     </v-btn>
                   </template>
                   <v-list dense>
-                    <v-list-item>
+                    <v-list-item @click="prepareRemoveInvitation(invitation)">
                       <v-list-item-icon>
                         <v-icon>
                           mdi-delete-outline
@@ -211,6 +212,16 @@
       Xóa <strong v-if="memberToRemove !== null">{{ memberToRemove.nickname }}</strong>
       khỏi chuyến đi?
     </BaseDialogConfirm>
+
+    <BaseDialogConfirm
+      v-model="confirmRemoveInvitationDialog"
+      :loading="removingInvitation"
+      @confirm="removeInvitation"
+      @cancel="confirmRemoveInvitationDialog = false"
+    >
+      Hủy lời mời đối với
+      <strong v-if="invitationToRemove !== null">{{ invitationToRemove.user.nickname }}</strong>?
+    </BaseDialogConfirm>
   </v-container>
 </template>
 
@@ -220,7 +231,7 @@ import { debounce, unexpectedExc } from '@/utils'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { mapState, mapMutations } from 'vuex'
 import { User } from '@/interfaces/user'
-import { EventInivitationsListRes, EventInvitationDetailRes, RemoveMembersReq } from '@/interfaces/api/event'
+import { CancelEventInvitationReq, EventInivitationsListRes, EventInvitationDetailRes, RemoveMembersReq } from '@/interfaces/api/event'
 import BaseAvatar from '@/components/BaseAvatar.vue'
 import BaseDialogConfirm from '@/components/BaseDialogConfirm.vue'
 import { AxiosRequestConfig } from 'axios'
@@ -377,8 +388,8 @@ export default class EventMembers extends Vue {
    * Invite user
    */
   @Watch('chosenUser')
-  onChoosingUser (user: SearchUserDetailRes, oldUser: SearchUserDetailRes | null): void {
-    if (oldUser !== null && user.email === oldUser.email) return
+  onChoosingUser (user: SearchUserDetailRes | null): void {
+    if (user === null) return
 
     const url = this.event.extra_action_urls.invite_members
     const payload: EventInviteMembersReq = {
@@ -389,8 +400,42 @@ export default class EventMembers extends Vue {
       .then(() => {
         this.showSucces('Thêm lời mời thành công.')
         this.setupInvitations()
+        this.text = ''
+        this.chosenUser = null
       })
       .catch(unexpectedExc)
+  }
+
+  /**
+   * Remove invitation
+   */
+  removingInvitation = false
+  confirmRemoveInvitationDialog = false
+  invitationToRemove: EventInvitationDetailRes | null = null
+
+  prepareRemoveInvitation (invitation: EventInvitationDetailRes): void {
+    this.invitationToRemove = invitation
+    this.confirmRemoveInvitationDialog = true
+  }
+
+  removeInvitation (): void {
+    if (this.removingInvitation || this.invitationToRemove === null) return
+    this.removingInvitation = true
+
+    const payload: CancelEventInvitationReq = {
+      member_emails: [this.invitationToRemove.user.email]
+    }
+
+    Vue.axios.post(this.event.extra_action_urls.cancel_invite_members, payload)
+      .then(() => {
+        this.showSucces('Hủy lời mời thành công.')
+        this.setupInvitations()
+        this.confirmRemoveInvitationDialog = false
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.removingInvitation = false
+      })
   }
 }
 </script>

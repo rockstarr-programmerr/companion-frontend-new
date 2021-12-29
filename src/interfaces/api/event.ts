@@ -41,3 +41,7 @@ export declare interface EventInvitationDetailRes {
 export declare interface EventInivitationsListRes extends PaginatedRes {
   results?: EventInvitationDetailRes[];
 }
+
+export declare interface CancelEventInvitationReq {
+  member_emails: string[];
+}

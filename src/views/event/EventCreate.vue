@@ -60,6 +60,7 @@
         clearable
         hide-details
         class="rounded-0 mt-4"
+        no-data-text="Không có kết quả nào."
       >
         <template #item="{ item }">
           <v-list-item-avatar>
