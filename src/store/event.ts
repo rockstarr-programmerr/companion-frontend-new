@@ -38,6 +38,10 @@ export const event: Module<EventState, RootState> = {
       state.currentEvent = payload
     },
 
+    REMOVE_EVENT (state, payload) {
+      state.events = state.events.filter(event => event.pk !== payload)
+    },
+
     REMOVE_MEMBERS (state, payload) {
       if (state.currentEvent === null) return
       state.currentEvent.members = state.currentEvent.members.filter(m => !payload.includes(m.pk))
@@ -70,6 +74,11 @@ export const event: Module<EventState, RootState> = {
     }): Promise<void> {
       const data = await Api.event.updateEvent(payload.pk, payload.body)
       commit('SET_CURRENT_EVENT', data)
+    },
+
+    async deleteEvent ({ commit }, payload: Event['pk']): Promise<void> {
+      await Api.event.deleteEvent(payload)
+      commit('REMOVE_EVENT', payload)
     },
 
     async removeMembers ({ commit, state }, payload: RemoveMembersReq): Promise<void> {

@@ -21,6 +21,7 @@ export const endpoints = {
       create: '/split-the-bill/events/',
       detail: '/split-the-bill/events/<pk>/',
       update: '/split-the-bill/events/<pk>/',
+      delete: '/split-the-bill/events/<pk>/',
       previewSettlements: '/split-the-bill/events/<pk>/preview-settlements/',
       settle: '/split-the-bill/events/<pk>/settle/'
     },

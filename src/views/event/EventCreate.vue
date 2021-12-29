@@ -210,6 +210,16 @@ export default class EventCreate extends Vue {
   creating = false
   showSucces!: CallableFunction
 
+  onCreateEventSuccess (event: EventDetailRes): void {
+    this.showSucces('Tạo chuyến đi thành công.')
+    this.$router.push({
+      name: 'EventDetail',
+      params: {
+        pk: event.pk.toString()
+      }
+    })
+  }
+
   createEvent (): void {
     if (this.creating) return
 
@@ -218,22 +228,21 @@ export default class EventCreate extends Vue {
     }
     this.$store.dispatch('event/createEvent', payload)
       .then((event: EventDetailRes) => {
-        const url = event.extra_action_urls.invite_members
-        const payload: EventInviteMembersReq = {
-          member_emails: this.membersToAdd.map(member => member.email)
-        }
+        const memberEmails = this.membersToAdd.map(member => member.email)
 
-        Vue.axios.post(url, payload)
-          .then(() => {
-            this.showSucces('Tạo chuyến đi thành công.')
-            this.$router.push({
-              name: 'EventDetail',
-              params: {
-                pk: event.pk.toString()
-              }
+        if (memberEmails.length === 0) {
+          this.onCreateEventSuccess(event)
+        } else {
+          const url = event.extra_action_urls.invite_members
+          const inviteMembersPayload: EventInviteMembersReq = {
+            member_emails: memberEmails
+          }
+          Vue.axios.post(url, inviteMembersPayload)
+            .then(() => {
+              this.onCreateEventSuccess(event)
             })
-          })
-          .catch(unexpectedExc)
+            .catch(unexpectedExc)
+        }
       })
       .catch(err => {
         if (assertErrCode(err, status.HTTP_400_BAD_REQUEST)) {

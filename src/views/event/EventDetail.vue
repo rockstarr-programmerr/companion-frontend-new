@@ -615,6 +615,17 @@
       </v-card>
     </v-dialog>
 
+    <BaseDialogConfirm
+      v-model="confirmDeleteEventDialog"
+      :loading="deletingEvent"
+      @confirm="deleteEvent"
+      @cancel="confirmDeleteEventDialog = false"
+    >
+      <p>Xóa chuyến đi <strong v-if="event !== null">{{ event.name }}</strong>?</p>
+      <span class="error--text font-weight-bold">Chú ý:</span>
+      Dữ liệu của chuyến đi sẽ bị xóa và không thể khôi phục!
+    </BaseDialogConfirm>
+
     <!-- Settlement confirm dialog -->
     <BaseDialogConfirm
       v-model="paySettleConfirmDialog"
@@ -772,6 +783,14 @@ export default class EventDetail extends Vue {
         }
       })
     }
+
+    items.push({
+      icon: 'delete-outline',
+      text: 'Xóa chuyến đi',
+      onClick: () => {
+        this.confirmDeleteEventDialog = true
+      }
+    })
 
     return items
   }
@@ -1286,6 +1305,28 @@ export default class EventDetail extends Vue {
       .catch(unexpectedExc)
       .finally(() => {
         this.updatingSettlement = false
+      })
+  }
+
+  /**
+   * Delete event
+   */
+  deletingEvent = false
+  confirmDeleteEventDialog = false
+
+  deleteEvent (): void {
+    if (this.deletingEvent) return
+    this.deletingEvent = true
+
+    this.$store.dispatch('event/deleteEvent', this.pk)
+      .then(() => {
+        this.showSuccess('Xóa chuyến đi thành công.')
+        this.confirmDeleteEventDialog = false
+        this.$router.push({ name: 'DashBoard' })
+      })
+      .catch(unexpectedExc)
+      .finally(() => {
+        this.deletingEvent = false
       })
   }
 }

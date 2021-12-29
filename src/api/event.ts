@@ -27,6 +27,11 @@ export const event = {
     return res.data
   },
 
+  async deleteEvent (pk: Event['pk']): Promise<void> {
+    const url = replacePk(endpoints.splitTheBill.events.delete, pk)
+    await Vue.axios.delete(url)
+  },
+
   async getPreviewSettlements (pk: Event['pk'], params?: AxiosRequestConfig['params']): Promise<SettlementPreviewRes> {
     const url = replacePk(endpoints.splitTheBill.events.previewSettlements, pk)
     const res = await Vue.axios.get(url, { params })
