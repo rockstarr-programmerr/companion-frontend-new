@@ -86,14 +86,47 @@
       </v-row>
       <v-divider></v-divider>
     </div>
+
+    <div class="mt-4">
+      <h2 class="text-body-1 font-weight-bold">
+        Hệ thống
+      </h2>
+
+      <v-row
+        class="text-body-2 py-2"
+        no-gutters
+        align="center"
+        v-ripple
+        @click="logoutConfirm = true"
+      >
+        <v-col cols="1">
+          <v-icon>
+            mdi-logout-variant
+          </v-icon>
+        </v-col>
+        <v-col cols="11" class="pl-4">
+          Đăng xuất
+        </v-col>
+      </v-row>
+      <v-divider></v-divider>
+    </div>
+
+    <BaseDialogConfirm
+      v-model="logoutConfirm"
+      @confirm="logout"
+      @cancel="logoutConfirm = false"
+    >
+      Bạn muốn đăng xuất?
+    </BaseDialogConfirm>
   </v-container>
 </template>
 
 <script lang="ts">
 import { User } from '@/interfaces/user';
 import { Vue, Component } from 'vue-property-decorator'
-import { mapState } from 'vuex'
-import BaseAvatar from '@/components/BaseAvatar.vue';
+import { mapMutations, mapState } from 'vuex'
+import BaseAvatar from '@/components/BaseAvatar.vue'
+import BaseDialogConfirm from '@/components/BaseDialogConfirm.vue'
 
 @Component({
   computed: {
@@ -101,8 +134,14 @@ import BaseAvatar from '@/components/BaseAvatar.vue';
       user: 'loggedInUser'
     })
   },
+  methods: {
+    ...mapMutations('message', {
+      showSucces: 'SHOW_SUCCESS'
+    })
+  },
   components: {
-    BaseAvatar
+    BaseAvatar,
+    BaseDialogConfirm
   }
 })
 export default class MyInfo extends Vue {
@@ -114,6 +153,20 @@ export default class MyInfo extends Vue {
    */
   loading = true
   user!: User
+
+  /**
+   * Logout
+   */
+  logoutConfirm = false
+  showSucces!: CallableFunction
+
+  logout (): void {
+    this.$store.dispatch('account/logout')
+      .then(() => {
+        this.showSucces('Đăng xuất thành công.')
+        this.$router.push({ name: 'Login' })
+      })
+  }
 }
 </script>
 

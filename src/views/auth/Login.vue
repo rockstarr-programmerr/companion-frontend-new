@@ -45,6 +45,7 @@
     <v-btn
       depressed
       block
+      large
       color="primary"
       min-width="110"
       :loading="loading"
