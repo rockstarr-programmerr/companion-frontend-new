@@ -5,8 +5,8 @@ import Vue from 'vue'
 import { endpoints, replacePk } from './endpoints'
 
 export const event = {
-  async getEvents (): Promise<EventListRes> {
-    const res = await Vue.axios.get(endpoints.splitTheBill.events.get)
+  async getEvents (params?: AxiosRequestConfig['params']): Promise<EventListRes> {
+    const res = await Vue.axios.get(endpoints.splitTheBill.events.get, { params })
     return res.data
   },
 

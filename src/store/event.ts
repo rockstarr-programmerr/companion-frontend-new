@@ -1,7 +1,8 @@
 import { Api } from '@/api'
 import { PaginatedRes } from '@/interfaces/api/common'
-import { EventDetailRes, EventUpdateReq, RemoveMembersReq } from '@/interfaces/api/event'
+import { EventDetailRes, EventListRes, EventUpdateReq, RemoveMembersReq } from '@/interfaces/api/event'
 import { Event, EventCreateReq } from '@/interfaces/event'
+import { AxiosRequestConfig } from 'axios'
 import Vue from 'vue'
 import { Module } from 'vuex'
 import { RootState } from './index'
@@ -49,8 +50,20 @@ export const event: Module<EventState, RootState> = {
   },
 
   actions: {
-    async getEvents ({ commit }): Promise<void> {
-      const data = await Api.event.getEvents()
+    async getEvents ({ commit }, payload: {
+      url?: string;
+      params?: AxiosRequestConfig['params']
+    }): Promise<void> {
+      const { params, url } = payload
+      let data!: EventListRes
+
+      if (url !== undefined) {
+        const res = await Vue.axios.get(url)
+        data = res.data
+      } else {
+        data = await Api.event.getEvents(params)
+      }
+
       const events = data.results
       delete data.results
       commit('SET_EVENTS', events)

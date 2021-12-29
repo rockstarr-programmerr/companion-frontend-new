@@ -136,6 +136,15 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+      <v-pagination
+        v-if="paginationLength > 1"
+        v-model="page"
+        :length="paginationLength"
+        class="mt-2"
+        @next="nextPage"
+        @previous="previousPage"
+      ></v-pagination>
     </div>
   </v-container>
 </template>
@@ -144,9 +153,11 @@
 import { Event } from '@/interfaces/event'
 import { EventInvitation, User } from '@/interfaces/user'
 import { unexpectedExc } from '@/utils'
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { mapState } from 'vuex'
 import BaseAvatar from '@/components/BaseAvatar.vue'
+import { PaginatedRes } from '@/interfaces/api/common'
+import { AxiosRequestConfig } from 'axios'
 
 @Component({
   computed: {
@@ -155,7 +166,8 @@ import BaseAvatar from '@/components/BaseAvatar.vue'
       eventInvitations: 'eventInvitations'
     }),
     ...mapState('event', [
-      'events'
+      'events',
+      'pagination'
     ])
   },
   components: {
@@ -176,8 +188,10 @@ export default class DashBoard extends Vue {
     this.setupNotifications()
   }
 
-  setupEvents (): void {
-    this.$store.dispatch('event/getEvents')
+  setupEvents (url?: string, params?: AxiosRequestConfig['params']): void {
+    this.loading = true
+
+    this.$store.dispatch('event/getEvents', { params, url })
       .catch(unexpectedExc)
       .finally(() => {
         this.loading = false
@@ -199,6 +213,39 @@ export default class DashBoard extends Vue {
   getRemainingMembersCount (event: Event): number {
     const truncatedMembers = this.getTruncatedMembers(event)
     return event.members.length - truncatedMembers.length
+  }
+
+  /**
+   * Pagination
+   */
+  page = 1
+  pagination!: PaginatedRes
+  itemsPerPage = 10
+
+  get paginationLength (): number {
+    return Math.ceil(this.pagination.count / this.itemsPerPage)
+  }
+
+  @Watch('page')
+  onPageChange (pageNum: number): void {
+    const offset = (pageNum - 1) * this.itemsPerPage
+    const params = {
+      limit: this.itemsPerPage,
+      offset
+    }
+    this.setupEvents(undefined, params)
+  }
+
+  nextPage (): void {
+    if (this.pagination.next !== null) {
+      this.setupEvents(this.pagination.next)
+    }
+  }
+
+  previousPage (): void {
+    if (this.pagination.previous !== null) {
+      this.setupEvents(this.pagination.previous)
+    }
   }
 }
 </script>
