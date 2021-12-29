@@ -18,3 +18,7 @@ export declare interface EventUpdateReqErrs {
 export declare interface SettlementPreviewRes extends PaginatedRes {
   results?: Settlement[];
 }
+
+export declare interface RemoveMembersReq {
+  member_pks: number[];
+}

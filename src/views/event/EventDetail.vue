@@ -22,6 +22,9 @@
           <h1 class="text-h5 font-weight-bold">
             {{ event.name }}
           </h1>
+          <div class="text-caption">
+            {{ formatDatetime(event.create_time, false) }}
+          </div>
         </v-col>
         <v-col cols="2">
           <v-menu
@@ -685,6 +688,7 @@ export default class EventDetail extends Vue {
    */
   event!: Event
   loading = true
+  formatDatetime = formatDatetime
 
   created (): void {
     this.setupEvent()
@@ -738,6 +742,18 @@ export default class EventDetail extends Vue {
         text: 'Chia sẻ',
         onClick: () => {
           // TODO
+        }
+      },
+      {
+        icon: 'account-multiple-outline',
+        text: 'Thành viên',
+        onClick: () => {
+          this.$router.push({
+            name: 'EventMembers',
+            params: {
+              pk: this.event.pk.toString()
+            }
+          })
         }
       }
     ]

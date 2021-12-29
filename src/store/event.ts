@@ -1,7 +1,8 @@
 import { Api } from '@/api'
 import { PaginatedRes } from '@/interfaces/api/common'
-import { EventDetailRes, EventUpdateReq } from '@/interfaces/api/event'
+import { EventDetailRes, EventUpdateReq, RemoveMembersReq } from '@/interfaces/api/event'
 import { Event, EventCreateReq } from '@/interfaces/event'
+import Vue from 'vue'
 import { Module } from 'vuex'
 import { RootState } from './index'
 
@@ -35,6 +36,11 @@ export const event: Module<EventState, RootState> = {
 
     SET_CURRENT_EVENT (state, payload) {
       state.currentEvent = payload
+    },
+
+    REMOVE_MEMBERS (state, payload) {
+      if (state.currentEvent === null) return
+      state.currentEvent.members = state.currentEvent.members.filter(m => !payload.includes(m.pk))
     }
   },
 
@@ -64,6 +70,12 @@ export const event: Module<EventState, RootState> = {
     }): Promise<void> {
       const data = await Api.event.updateEvent(payload.pk, payload.body)
       commit('SET_CURRENT_EVENT', data)
+    },
+
+    async removeMembers ({ commit, state }, payload: RemoveMembersReq): Promise<void> {
+      if (state.currentEvent === null) return
+      await Vue.axios.post(state.currentEvent.extra_action_urls.remove_members, payload)
+      commit('REMOVE_MEMBERS', payload.member_pks)
     }
   }
 }

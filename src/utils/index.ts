@@ -48,10 +48,15 @@ export function debounce (func: CallableFunction, miliseconds: number): Callable
   }
 }
 
-export function formatDatetime (datetimeStr: unknown): string {
+export function formatDatetime (datetimeStr: unknown, includeTime?: boolean): string {
   if (typeof datetimeStr === 'string') {
+    if (includeTime === undefined) includeTime = true
     const datetime = new Date(datetimeStr)
-    return `${datetime.toLocaleDateString()} ${datetime.toLocaleTimeString()}`
+    let formatted = datetime.toLocaleDateString()
+    if (includeTime) {
+      formatted += ` ${datetime.toLocaleTimeString()}`
+    }
+    return formatted
   } else {
     return ''
   }
