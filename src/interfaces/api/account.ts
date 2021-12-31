@@ -65,3 +65,9 @@ export declare interface RegisterUserReq {
   email: string;
   password: string;
 }
+
+export declare interface LoginWithGoogleReq {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+}

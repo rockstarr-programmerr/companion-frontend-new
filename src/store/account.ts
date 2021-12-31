@@ -1,5 +1,5 @@
 import { Api } from '@/api'
-import { LoginReq, UpdateProfileReq } from '@/interfaces/api/account'
+import { LoginReq, LoginWithGoogleReq, UpdateProfileReq } from '@/interfaces/api/account'
 import { EventInvitation, User } from '@/interfaces/user'
 import { loadAccessToken, loadRefreshToken, setAccessToken, setRefreshToken } from '@/utils/auth'
 import { Module } from 'vuex'
@@ -53,6 +53,12 @@ export const account: Module<AccountState, RootState> = {
   actions: {
     async login ({ commit }, payload: LoginReq): Promise<void> {
       const data = await Api.account.login(payload)
+      commit('SET_ACCESS_TOKEN', data.access)
+      commit('SET_REFRESH_TOKEN', data.refresh)
+    },
+
+    async loginWithGoogle ({ commit }, payload: LoginWithGoogleReq): Promise<void> {
+      const data = await Api.account.loginWithGoogle(payload)
       commit('SET_ACCESS_TOKEN', data.access)
       commit('SET_REFRESH_TOKEN', data.refresh)
     },

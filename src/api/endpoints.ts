@@ -9,7 +9,10 @@ export const endpoints = {
       changePassword: '/users/change-password/',
       emailResetPasswordLink: '/users/email-reset-password-link/',
       resetPassword: '/users/reset-password/',
-      search: '/users/search/'
+      search: '/users/search/',
+      socialAccount: {
+        loginWithGoogle: '/users/social-account/google/authen/'
+      }
     },
     me: {
       myInfo: '/users/me/info/',

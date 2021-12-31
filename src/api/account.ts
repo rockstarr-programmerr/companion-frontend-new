@@ -4,6 +4,7 @@ import {
   ChangePasswordReq,
   EmailResetPasswordLinkReq,
   LoginReq, LoginRes,
+  LoginWithGoogleReq,
   MyInfoRes,
   RegisterUserReq,
   ResetPasswordReq, SearchUserRes, SearchUsersReq, TokenRefreshReq, TokenRefreshRes, UpdateProfileReq, UpdateProfileRes, UserDetailRes
@@ -73,6 +74,11 @@ export const account = {
 
   async searchUsers (params: SearchUsersReq): Promise<SearchUserRes> {
     const res = await Vue.axios.get(endpoints.account.users.search, { params })
+    return res.data
+  },
+
+  async loginWithGoogle (payload: LoginWithGoogleReq): Promise<LoginRes> {
+    const res = await Vue.axios.post(endpoints.account.users.socialAccount.loginWithGoogle, payload)
     return res.data
   }
 }

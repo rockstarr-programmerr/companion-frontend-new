@@ -92,6 +92,8 @@
         large
         color="white"
         class="mt-4"
+        :loading="loadingGoogle"
+        @click="loginWithGoogle"
       >
         <v-icon left>
           mdi-google
@@ -104,7 +106,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { LoginReq } from '@/interfaces/api/account'
+import { LoginReq, LoginWithGoogleReq } from '@/interfaces/api/account'
 import { snakeCaseToCamelCase, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 
@@ -133,8 +135,7 @@ export default class Login extends Vue {
 
     try {
       await this.$store.dispatch('account/login', payload)
-      await this.$store.dispatch('account/getInfo')
-      this.$router.push({ name: 'DashBoard' })
+      this.loginSuccess()
     } catch (error) {
       if (assertErrCode(error, status.HTTP_401_UNAUTHORIZED)) {
         this.errorMsg = error.response.data.detail
@@ -149,6 +150,42 @@ export default class Login extends Vue {
       }
     } finally {
       this.loading = false
+    }
+  }
+
+  loginSuccess (): void {
+    this.$store.dispatch('account/getInfo')
+      .then(() => {
+        this.$router.push({ name: 'DashBoard' })
+      })
+  }
+
+  /**
+   * Login with google
+   */
+  loadingGoogle = false
+
+  async loginWithGoogle (): Promise<void> {
+    // @ts-expect-error don't care
+    if (this.loadingGoogle || !this.$gAuth.isInit) return
+    this.loadingGoogle = true
+
+    try {
+      // @ts-expect-error don't care
+      const googleUser = await this.$gAuth.signIn()
+      const auth = googleUser.getAuthResponse()
+
+      const payload: LoginWithGoogleReq = {
+        access_token: auth.access_token,
+        expires_in: auth.expires_in
+      }
+      await this.$store.dispatch('account/loginWithGoogle', payload)
+
+      this.loginSuccess()
+    } catch (error) {
+      unexpectedExc(error)
+    } finally {
+      this.loadingGoogle = false
     }
   }
 }
