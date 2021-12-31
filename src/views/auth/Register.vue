@@ -40,7 +40,6 @@
       depressed
       large
       color="primary"
-      min-width="110"
       :loading="loading"
       class="mt-6"
     >

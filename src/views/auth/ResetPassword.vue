@@ -23,7 +23,6 @@
 
       <v-btn
         color="primary"
-        min-width="110"
         block
         depressed
         large
