@@ -4,6 +4,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import DashBoard from '../views/DashBoard.vue'
 
 import Login from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
 
 import Notifications from '../views/account/Notifications.vue'
 import MyInfo from '../views/account/MyInfo.vue'
@@ -34,6 +35,11 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   },
   {
     path: '/qr/:pk/:token',

@@ -11,6 +11,7 @@
         v-model="email"
         label="Email"
         outlined
+        autofocus
         :error-messages="emailErrs"
         :error-count="emailErrs.length"
       ></v-text-field>
@@ -38,7 +39,9 @@
         <a href="#">Quên mật khẩu?</a> <!-- TODO -->
       </v-col>
       <v-col cols="auto">
-        <a href="#">Đăng ký</a> <!-- TODO -->
+        <router-link :to="{ name: 'Register' }">
+          Đăng ký
+        </router-link>
       </v-col>
     </v-row>
 

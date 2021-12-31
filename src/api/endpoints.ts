@@ -1,6 +1,7 @@
 export const endpoints = {
   account: {
     users: {
+      register: '/users/register/',
       login: '/users/login/',
       tokenRefresh: '/users/token-refresh/',
       registerTeacher: '/users/register-teacher/',

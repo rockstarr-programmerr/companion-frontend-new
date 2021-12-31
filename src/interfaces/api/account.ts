@@ -60,3 +60,8 @@ export declare interface SearchUserDetailRes {
 export declare interface SearchUserRes extends PaginatedRes {
   results?: SearchUserDetailRes[];
 }
+
+export declare interface RegisterUserReq {
+  email: string;
+  password: string;
+}

@@ -1,110 +1,111 @@
 <template>
-  <BaseAuth>
-    <v-card class="mt-5">
-      <v-card-title>
-        Register teacher account
-      </v-card-title>
+  <v-container>
+    <div>
+      <h1>
+        Companion
+      </h1>
+    </div>
 
-      <v-card-text>
-        <v-form v-on:keyup.native.enter="register">
-          <v-text-field
-            v-model="email"
-            label="Email"
-            autofocus
-            :error-messages="emailErrs"
-            :error-count="emailErrs.length"
-          ></v-text-field>
-          <v-text-field
-            v-model="password"
-            label="Password"
-            :type="showPassword ? 'text' : 'password'"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append="showPassword = !showPassword"
-            :error-messages="passwordErrs"
-            :error-count="passwordErrs.length"
-          ></v-text-field>
-        </v-form>
+    <div class="mt-10">
+      <v-text-field
+        v-model="email"
+        label="Email"
+        autofocus
+        outlined
+        :error-messages="emailErrs"
+        :error-count="emailErrs.length"
+      ></v-text-field>
+      <v-text-field
+        v-model="password"
+        label="Password"
+        outlined
+        :type="showPassword ? 'text' : 'password'"
+        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+        @click:append="showPassword = !showPassword"
+        :error-messages="passwordErrs"
+        :error-count="passwordErrs.length"
+      ></v-text-field>
+    </div>
 
-        <div>
-          <span>Already have account?</span>
-          <router-link :to="{ name: 'Login' }">
-            Login
-          </router-link>
-        </div>
-      </v-card-text>
+    <div>
+      Đã có tài khoản?
+      <router-link :to="{ name: 'Login' }" class="ml-1">
+        Đăng nhập
+      </router-link>
+    </div>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          @click="register"
-          color="primary"
-          min-width="110"
-          :loading="loading"
-        >
-          Register
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </BaseAuth>
+    <v-btn
+      @click="register"
+      block
+      depressed
+      large
+      color="primary"
+      min-width="110"
+      :loading="loading"
+      class="mt-6"
+    >
+      Đăng ký
+    </v-btn>
+  </v-container>
 </template>
 
 <script lang="ts">
+import { Api } from '@/api'
+import { RegisterUserReq } from '@/interfaces/api/account'
 import { unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
-import { Vue, Component, Emit } from 'vue-property-decorator'
-import BaseAuth from './BaseAuth.vue'
+import { Vue, Component } from 'vue-property-decorator'
+import { mapMutations } from 'vuex'
 
 @Component({
-  components: {
-    BaseAuth
+  methods: {
+    ...mapMutations('message', {
+      showSuccess: 'SHOW_SUCCESS'
+    })
   }
 })
 export default class Register extends Vue {
   // eslint-disable-next-line no-undef
   [key: string]: unknown
 
-  @Emit('change-page')
-  changePage (e: Event): Event { return e }
-
   email = ''
   password = ''
   showPassword = false
   loading = false
+  showSuccess!: CallableFunction
 
   emailErrs: string[] = []
   passwordErrs: string[] = []
 
-  register (): void {
+  async register (): Promise<void> {
     if (this.loading) return
     this.loading = true
     this.resetValidation()
 
-    const payload = {
+    const payload: RegisterUserReq = {
       email: this.email,
       password: this.password
     }
 
-    this.$store.dispatch('account/registerTeacher', payload)
-      .then(() => {
-        return this.$store.dispatch('account/login', payload)
-      })
-      .then(() => {
-        this.$router.push({ name: 'Home' })
-      })
-      .catch(error => {
-        if (assertErrCode(error, status.HTTP_400_BAD_REQUEST)) {
-          const data = error.response.data
-          Object.entries(data).forEach(([field, errMsgs]) => {
-            const attr = `${field}Errs`
-            this[attr] = errMsgs
-          })
-        } else {
-          unexpectedExc(error)
-        }
-      })
-      .finally(() => {
-        this.loading = false
-      })
+    try {
+      await Api.account.register(payload)
+      await this.$store.dispatch('account/login', payload)
+      await this.$store.dispatch('account/getInfo')
+      this.showSuccess('Chào bạn đến với Companion 😊')
+      this.$router.push({ name: 'DashBoard' })
+    } catch (error) {
+      if (assertErrCode(error, status.HTTP_400_BAD_REQUEST)) {
+        const data = error.response.data
+        Object.entries(data).forEach(([field, errMsgs]) => {
+          const attr = `${field}Errs`
+          this[attr] = errMsgs
+        })
+      } else {
+        unexpectedExc(error)
+      }
+    } finally {
+      this.loading = false
+    }
   }
 
   resetValidation (): void {

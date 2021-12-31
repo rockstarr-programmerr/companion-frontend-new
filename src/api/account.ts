@@ -5,11 +5,16 @@ import {
   EmailResetPasswordLinkReq,
   LoginReq, LoginRes,
   MyInfoRes,
+  RegisterUserReq,
   ResetPasswordReq, SearchUserRes, SearchUsersReq, TokenRefreshReq, TokenRefreshRes, UpdateProfileReq, UpdateProfileRes, UserDetailRes
 } from '@/interfaces/api/account'
 import { User } from '@/interfaces/user'
 
 export const account = {
+  async register (payload: RegisterUserReq): Promise<void> {
+    await Vue.axios.post(endpoints.account.users.register, payload)
+  },
+
   async login (reqBody: LoginReq): Promise<LoginRes> {
     const res = await Vue.axios.post(endpoints.account.users.login, reqBody)
     return res.data
