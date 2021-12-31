@@ -81,6 +81,8 @@
         block
         large
         dark
+        :loading="loadingFacebook"
+        @click="loginWithFacebook"
       >
         <v-icon left>
           mdi-facebook
@@ -106,7 +108,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { LoginReq, LoginWithGoogleReq } from '@/interfaces/api/account'
+import { LoginReq, LoginWithFacebookReq, LoginWithGoogleReq } from '@/interfaces/api/account'
 import { snakeCaseToCamelCase, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 
@@ -114,6 +116,33 @@ import { assertErrCode, status } from '@/utils/status-codes'
 export default class Login extends Vue {
   // eslint-disable-next-line no-undef
   [index: string]: unknown
+
+  created (): void {
+    // @ts-expect-error don't care
+    window.fbAsyncInit = function() {
+      // @ts-expect-error don't care
+      window.FB.init({
+        appId      : '710116979896420',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v12.0'
+      });
+
+      // @ts-expect-error don't care
+      window.FB.AppEvents.logPageView();
+
+    };
+
+    (function(d, s, id){
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      // @ts-expect-error don't care
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      // @ts-expect-error don't care
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  }
 
   email = ''
   password = ''
@@ -187,6 +216,34 @@ export default class Login extends Vue {
     } finally {
       this.loadingGoogle = false
     }
+  }
+
+  /**
+   * Login with facebook
+   */
+  loadingFacebook = false
+
+  loginWithFacebook (): void {
+    if (this.loadingFacebook) return
+    this.loadingFacebook = true
+
+    // @ts-expect-error don't care
+    window.FB.login(res => {
+      if (res.status === 'connected') {
+        const payload: LoginWithFacebookReq = {
+          access_token: res.authResponse.accessToken,
+          expires_in: res.authResponse.expiresIn
+        }
+        this.$store.dispatch('account/loginWithFacebook', payload)
+          .catch(unexpectedExc)
+          .then(() => {
+            this.loginSuccess()
+          })
+          .finally(() => {
+            this.loadingFacebook = false
+          })
+      }
+    }, {scope: 'public_profile,email'})
   }
 }
 </script>

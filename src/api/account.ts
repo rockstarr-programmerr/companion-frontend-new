@@ -4,6 +4,7 @@ import {
   ChangePasswordReq,
   EmailResetPasswordLinkReq,
   LoginReq, LoginRes,
+  LoginWithFacebookReq,
   LoginWithGoogleReq,
   MyInfoRes,
   RegisterUserReq,
@@ -79,6 +80,11 @@ export const account = {
 
   async loginWithGoogle (payload: LoginWithGoogleReq): Promise<LoginRes> {
     const res = await Vue.axios.post(endpoints.account.users.socialAccount.loginWithGoogle, payload)
+    return res.data
+  },
+
+  async loginWithFacebook (payload: LoginWithFacebookReq): Promise<LoginRes> {
+    const res = await Vue.axios.post(endpoints.account.users.socialAccount.loginWithFacebook, payload)
     return res.data
   }
 }

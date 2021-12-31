@@ -11,7 +11,8 @@ export const endpoints = {
       resetPassword: '/users/reset-password/',
       search: '/users/search/',
       socialAccount: {
-        loginWithGoogle: '/users/social-account/google/authen/'
+        loginWithGoogle: '/users/social-account/google/authen/',
+        loginWithFacebook: '/users/social-account/facebook/authen/'
       }
     },
     me: {

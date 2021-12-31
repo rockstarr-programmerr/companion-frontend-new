@@ -71,3 +71,9 @@ export declare interface LoginWithGoogleReq {
   refresh_token?: string;
   expires_in?: number;
 }
+
+export declare interface LoginWithFacebookReq {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+}

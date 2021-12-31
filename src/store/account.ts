@@ -1,5 +1,5 @@
 import { Api } from '@/api'
-import { LoginReq, LoginWithGoogleReq, UpdateProfileReq } from '@/interfaces/api/account'
+import { LoginReq, LoginWithFacebookReq, LoginWithGoogleReq, UpdateProfileReq } from '@/interfaces/api/account'
 import { EventInvitation, User } from '@/interfaces/user'
 import { loadAccessToken, loadRefreshToken, setAccessToken, setRefreshToken } from '@/utils/auth'
 import { Module } from 'vuex'
@@ -59,6 +59,12 @@ export const account: Module<AccountState, RootState> = {
 
     async loginWithGoogle ({ commit }, payload: LoginWithGoogleReq): Promise<void> {
       const data = await Api.account.loginWithGoogle(payload)
+      commit('SET_ACCESS_TOKEN', data.access)
+      commit('SET_REFRESH_TOKEN', data.refresh)
+    },
+
+    async loginWithFacebook ({ commit }, payload: LoginWithFacebookReq): Promise<void> {
+      const data = await Api.account.loginWithFacebook(payload)
       commit('SET_ACCESS_TOKEN', data.access)
       commit('SET_REFRESH_TOKEN', data.refresh)
     },
