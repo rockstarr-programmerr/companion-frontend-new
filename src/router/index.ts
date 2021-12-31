@@ -5,6 +5,7 @@ import DashBoard from '../views/DashBoard.vue'
 
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
+import ResetPassword from '../views/auth/ResetPassword.vue'
 
 import Notifications from '../views/account/Notifications.vue'
 import MyInfo from '../views/account/MyInfo.vue'
@@ -40,6 +41,11 @@ const routes: Array<RouteConfig> = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword
   },
   {
     path: '/qr/:pk/:token',

@@ -36,7 +36,9 @@
 
     <v-row justify="space-between">
       <v-col cols="auto">
-        <a href="#">Quên mật khẩu?</a> <!-- TODO -->
+        <router-link :to="{ name: 'ResetPassword' }">
+          Quên mật khẩu?
+        </router-link>
       </v-col>
       <v-col cols="auto">
         <router-link :to="{ name: 'Register' }">
