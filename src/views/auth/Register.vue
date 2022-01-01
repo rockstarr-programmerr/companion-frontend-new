@@ -1,11 +1,5 @@
 <template>
-  <v-container>
-    <div>
-      <h1>
-        Companion
-      </h1>
-    </div>
-
+  <BaseAuth>
     <div class="mt-10">
       <v-text-field
         v-model="email"
@@ -45,7 +39,7 @@
     >
       Đăng ký
     </v-btn>
-  </v-container>
+  </BaseAuth>
 </template>
 
 <script lang="ts">
@@ -55,12 +49,16 @@ import { unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component } from 'vue-property-decorator'
 import { mapMutations } from 'vuex'
+import BaseAuth from './BaseAuth.vue'
 
 @Component({
   methods: {
     ...mapMutations('message', {
       showSuccess: 'SHOW_SUCCESS'
     })
+  },
+  components: {
+    BaseAuth
   }
 })
 export default class Register extends Vue {

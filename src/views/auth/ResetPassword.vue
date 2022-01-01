@@ -1,11 +1,5 @@
 <template>
-  <v-container>
-    <div>
-      <h1>
-        Companion
-      </h1>
-    </div>
-
+  <BaseAuth>
     <template v-if="!sent">
       <div class="my-5 text-body-2">
         Chúng tôi sẽ gửi bạn email hướng dẫn đặt lại mật khẩu.
@@ -59,7 +53,7 @@
         </a>
       </p>
     </div>
-  </v-container>
+  </BaseAuth>
 </template>
 
 <script lang="ts">
@@ -68,12 +62,16 @@ import { snakeCaseToCamelCase, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component } from 'vue-property-decorator'
 import { mapMutations } from 'vuex'
+import BaseAuth from './BaseAuth.vue'
 
 @Component({
   methods: {
     ...mapMutations('message', {
       showSuccess: 'SHOW_SUCCESS'
     })
+  },
+  components: {
+    BaseAuth
   }
 })
 export default class ResetPassword extends Vue {

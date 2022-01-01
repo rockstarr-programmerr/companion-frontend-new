@@ -1,11 +1,5 @@
 <template>
-  <v-container>
-    <div>
-      <h1>
-        Companion
-      </h1>
-    </div>
-
+  <BaseAuth>
     <div class="mt-10">
       <v-text-field
         v-model="email"
@@ -103,7 +97,7 @@
         Đăng nhập bằng google
       </v-btn>
     </div>
-  </v-container>
+  </BaseAuth>
 </template>
 
 <script lang="ts">
@@ -111,8 +105,13 @@ import { Vue, Component } from 'vue-property-decorator'
 import { LoginReq, LoginWithFacebookReq, LoginWithGoogleReq } from '@/interfaces/api/account'
 import { snakeCaseToCamelCase, unexpectedExc } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
+import BaseAuth from './BaseAuth.vue'
 
-@Component
+@Component({
+  components: {
+    BaseAuth
+  }
+})
 export default class Login extends Vue {
   // eslint-disable-next-line no-undef
   [index: string]: unknown

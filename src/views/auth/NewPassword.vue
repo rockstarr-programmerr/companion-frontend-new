@@ -1,11 +1,5 @@
 <template>
-  <v-container>
-    <div>
-      <h1>
-        Companion
-      </h1>
-    </div>
-
+  <BaseAuth>
     <div class="my-5">
       Hãy đặt lại mật khẩu mới.
     </div>
@@ -33,7 +27,7 @@
     >
       Xác nhận
     </v-btn>
-  </v-container>
+  </BaseAuth>
 </template>
 
 <script lang="ts">
@@ -42,12 +36,16 @@ import { snakeCaseToCamelCase } from '@/utils'
 import { assertErrCode, status } from '@/utils/status-codes'
 import { Vue, Component } from 'vue-property-decorator'
 import { mapMutations } from 'vuex'
+import BaseAuth from './BaseAuth.vue'
 
 @Component({
   methods: {
     ...mapMutations('message', {
       showSuccess: 'SHOW_SUCCESS'
     })
+  },
+  components: {
+    BaseAuth
   }
 })
 export default class NewPassword extends Vue {

@@ -1,11 +1,31 @@
 <template>
-  <v-container class="container-xs">
-    <v-img
-      :src="require('@/assets/cover.png')"
-      width="50%"
-      class="mx-auto"
-    ></v-img>
-    <v-divider></v-divider>
+  <v-container>
+    <div>
+      <v-img
+        :src="require('@/assets/logo.png')"
+        width="100"
+        height="100"
+        max-width="100"
+        max-height="100"
+        class="mx-auto"
+      >
+        <template #placeholder>
+          <v-row
+            class="fill-height ma-0"
+            justify="center"
+            align="center"
+          >
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </v-row>
+        </template>
+      </v-img>
+      <h1 class="text-center text-h3">
+        Companion
+      </h1>
+    </div>
     <slot></slot>
   </v-container>
 </template>
