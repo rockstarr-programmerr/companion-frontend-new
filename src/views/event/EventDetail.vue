@@ -251,7 +251,7 @@
                   class="text-body-2 font-weight-bold no-decoration"
                 >
                   Chi tiết
-                  <v-icon>
+                  <v-icon color="primary">
                     mdi-chevron-right
                   </v-icon>
                 </router-link>

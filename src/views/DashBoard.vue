@@ -15,7 +15,7 @@
           icon
           :to="{ name: 'Notifications' }"
         >
-          <v-icon>
+          <v-icon color="primary">
             mdi-bell-outline
           </v-icon>
           <v-badge
@@ -30,7 +30,7 @@
           icon
           :to="{ name: 'MyInfo' }"
         >
-          <v-icon>
+          <v-icon color="primary">
             mdi-cog-outline
           </v-icon>
         </v-btn>
@@ -80,7 +80,7 @@
             large
             :to="{ name: 'EventCreate' }"
           >
-            <v-icon>
+            <v-icon color="primary">
               mdi-plus
             </v-icon>
           </v-btn>
@@ -257,6 +257,6 @@ export default class DashBoard extends Vue {
 
 <style scoped lang="scss">
 .list-item {
-  background-color: #F7F7FF;
+  background-color: var(--v-primary-lighten4);
 }
 </style>

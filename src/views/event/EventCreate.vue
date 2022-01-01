@@ -264,7 +264,7 @@ export default class EventCreate extends Vue {
 
 <style scoped lang="scss">
 .create-btn {
-  color: var(--v-anchor-base);
+  color: var(--v-primary-base);
 }
 
 .trip-name-input ::v-deep input {
