@@ -75,16 +75,17 @@
             </v-col>
           </v-row>
           <div v-else-if="invitation.status === 'accepted'">
-            <router-link
+            <v-chip
               :to="{
                 name: 'EventDetail',
                 params: {
                   pk: invitation.event.pk.toString()
                 }
               }"
+              color="primary"
             >
               Xem chuyến đi
-            </router-link>
+            </v-chip>
           </div>
           <v-chip v-else>
             Đã từ chối

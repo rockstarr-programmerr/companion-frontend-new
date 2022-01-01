@@ -23,7 +23,7 @@
             {{ event.name }}
           </h1>
           <div class="text-caption">
-            {{ formatDatetime(event.create_time, false) }}
+            Tạo ngày {{ formatDatetime(event.create_time, false) }} bởi {{ event.creator.nickname }}
           </div>
         </v-col>
         <v-col cols="2">
@@ -388,6 +388,10 @@
         <v-card-title>
           Thêm khoản góp
         </v-card-title>
+        <v-card-subtitle>
+          Người tạo chuyến đi ({{ event.creator.nickname }}) sẽ kiêm thủ quỹ.
+          Hãy đưa khoản góp này cho {{ event.creator.nickname }}.
+        </v-card-subtitle>
         <v-card-text>
           <v-form>
             <v-select
@@ -1154,7 +1158,7 @@ export default class EventDetail extends Vue {
           icon = 'currency-usd'
           color = '#2A369C'
           // @ts-expect-error transaction of type "user_to_user" must have from_user and to_user
-          text = `${transaction.from_user.nickname} trả ${transaction.to_user.nickname}`
+          text = `${transaction.from_user.nickname} đưa ${transaction.to_user.nickname}`
           break;
 
         case 'user_to_fund':
@@ -1376,7 +1380,7 @@ $chart-card-height: 170px;
 }
 
 .fab-card {
-  opacity: 0.97;
+  opacity: 0.96;
 }
 
 .no-decoration {

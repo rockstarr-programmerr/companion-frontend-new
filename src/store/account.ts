@@ -96,11 +96,7 @@ export const account: Module<AccountState, RootState> = {
 
     async getEventInvitations ({ commit, state }): Promise<void> {
       if (state.loggedInUser === undefined) return
-      const res = await Vue.axios.get(state.loggedInUser.event_invitations_url, {
-        params: {
-          status__in: 'pending'
-        }
-      })
+      const res = await Vue.axios.get(state.loggedInUser.event_invitations_url)
       commit('SET_EVENT_INVITATIONS', res.data.results)
     },
 

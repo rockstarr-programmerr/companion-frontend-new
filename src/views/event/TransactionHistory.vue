@@ -185,7 +185,7 @@ export default class TransactionHistory extends Vue {
           icon = 'currency-usd'
           color = '#2A369C'
           // @ts-expect-error transaction of type "user_to_user" must have from_user and to_user
-          text = `${transaction.from_user.nickname} trả ${transaction.to_user.nickname}`
+          text = `${transaction.from_user.nickname} đưa ${transaction.to_user.nickname}`
           break;
 
         case 'user_to_fund':

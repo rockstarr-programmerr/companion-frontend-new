@@ -3,7 +3,7 @@
     <v-row
       justify="space-between"
       align="center"
-      class="py-9"
+      class="pt-7 pb-4"
     >
       <v-col cols="8">
         <h1 class="text-h5 font-weight-bold">
@@ -19,9 +19,9 @@
             mdi-bell-outline
           </v-icon>
           <v-badge
-            v-if="eventInvitations.length > 0"
+            v-if="pendingEventInvitationsCount > 0"
             color="red"
-            :content="eventInvitations.length"
+            :content="pendingEventInvitationsCount"
             offset-x="10"
             offset-y="-8"
           ></v-badge>
@@ -45,7 +45,7 @@
 
     <div
       v-else-if="events.length === 0"
-      class="mt-15 text-center"
+      class="mt-10 text-center"
     >
       <div class="text-body-1 font-weight-bold">
         Bạn chưa có chuyến đi nào.
@@ -56,7 +56,7 @@
         block
         tile
         large
-        class="mt-15"
+        class="mt-10"
         :to="{ name: 'EventCreate' }"
       >
         Tạo ngay
@@ -202,6 +202,10 @@ export default class DashBoard extends Vue {
   setupNotifications (): void {
     this.$store.dispatch('account/getEventInvitations')
       .catch(unexpectedExc)
+  }
+
+  get pendingEventInvitationsCount (): number {
+    return this.eventInvitations.filter(invitation => invitation.status === 'pending').length
   }
 
   /**

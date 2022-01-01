@@ -12,7 +12,7 @@
     </div>
 
     <h1 class="text-h5 font-weight-bold mb-6">
-      Thảy ảnh đại diện
+      Thay ảnh đại diện
     </h1>
 
     <v-file-input

@@ -167,6 +167,7 @@
               </v-list-item-content>
               <v-list-item-icon>
                 <v-menu
+                  v-if="invitation.status === 'pending'"
                   left
                   nudge-left="40"
                 >
@@ -196,6 +197,9 @@
                     </v-list-item>
                   </v-list>
                 </v-menu>
+                <v-chip v-else-if="invitation.status === 'declined'">
+                  Đã từ chối
+                </v-chip>
               </v-list-item-icon>
             </v-list-item>
           </v-list>

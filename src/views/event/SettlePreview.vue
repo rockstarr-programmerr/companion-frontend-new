@@ -14,9 +14,6 @@
     <h1 class="text-h5 font-weight-bold mb-4">
       Chốt sổ (dự kiến)
     </h1>
-    <div class="mb-4">
-      Dưới đây là những giao dịch dự kiến để chốt sổ.
-    </div>
 
     <v-skeleton-loader
       v-if="loading"
@@ -24,10 +21,14 @@
     ></v-skeleton-loader>
 
     <div v-else-if="settlements.length === 0">
-      Chưa có giao dịch nào.
+      Không có giao dịch nào cần thực hiện.
     </div>
 
     <div v-else>
+      <div class="mb-4">
+        Dưới đây là những giao dịch dự kiến để chốt sổ.
+      </div>
+
       <v-sheet
         color="#F4F5F7"
         class="pa-2 mt-2"
@@ -37,7 +38,7 @@
             v-for="(settlement, index) of settlements"
             :key="index"
           >
-            <v-list-item-content>
+            <v-list-item-content class="text-body-2">
               {{ settlement.from_user.nickname }} trả
               {{ settlement.to_user.nickname }}
               {{ settlement.amount.toLocaleString() }} đ
@@ -61,12 +62,20 @@
         depressed
         color="primary"
         class="mt-3"
-        :loading="settling"
-        @click="settle"
+        @click="settleConfirmDialog = true"
       >
         Chốt
       </v-btn>
     </div>
+
+    <BaseDialogConfirm
+      v-model="settleConfirmDialog"
+      :loading="settling"
+      @confirm="settle"
+      @cancel="settleConfirmDialog = false"
+    >
+      <p>Sau khi chốt sổ, bạn sẽ không thể thêm giao dịch mới.</p>
+    </BaseDialogConfirm>
   </v-container>
 </template>
 
@@ -77,12 +86,16 @@ import { Settlement } from '@/interfaces/event'
 import { unexpectedExc } from '@/utils'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { mapMutations } from 'vuex'
+import BaseDialogConfirm from '@/components/BaseDialogConfirm.vue'
 
 @Component({
   methods: {
     ...mapMutations('message', {
       showSuccess: 'SHOW_SUCCESS'
     })
+  },
+  components: {
+    BaseDialogConfirm
   }
 })
 export default class SettlePreview extends Vue {
@@ -164,6 +177,7 @@ export default class SettlePreview extends Vue {
   /**
    * Settle
    */
+  settleConfirmDialog = false
   settling = false
   showSuccess!: CallableFunction
 
