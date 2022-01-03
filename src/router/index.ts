@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 
 import DashBoard from '../views/DashBoard.vue'
+import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
@@ -58,6 +59,11 @@ const routes: Array<RouteConfig> = [
     name: 'JoinWithQR',
     component: JoinWithQR,
     props: true
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: PrivacyPolicy
   },
   ...prefixWith('/account', [
     {
