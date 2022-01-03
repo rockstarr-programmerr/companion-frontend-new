@@ -163,5 +163,6 @@ export const noAuthenRoutes = [
   'ResetPassword',
   'NewPassword',
   'PrivacyPolicy',
-  'TermsOfService'
+  'TermsOfService',
+  'FbDataDeletionStatus'
 ]

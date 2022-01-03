@@ -12,8 +12,8 @@
     <div v-else>
       <p>Mã xác nhận: {{ status.confirmation_code }}</p>
       <p>Trạng thái: {{ getStatusText(status.status) }}</p>
-      <p>Thời gian yêu cầu: {{ status.issued_at }}</p>
-      <p>Thời gian hết hạn: {{ status.expires }}</p>
+      <p>Thời gian yêu cầu: {{ formatDatetime(status.issued_at) }}</p>
+      <p>Thời gian hết hạn: {{ formatDatetime(status.expires) }}</p>
     </div>
 
     <router-link :to="{ name: 'DashBoard' }">
@@ -25,7 +25,7 @@
 <script lang="ts">
 import { Api } from '@/api'
 import { FbDataDeletionStatusRes } from '@/interfaces/api/account'
-import { unexpectedExc } from '@/utils'
+import { formatDatetime, unexpectedExc } from '@/utils'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
@@ -61,6 +61,8 @@ export default class FbDataDeletionStatus extends Vue {
     }
     return mapper[status] || ''
   }
+
+  formatDatetime = formatDatetime
 }
 </script>
 
