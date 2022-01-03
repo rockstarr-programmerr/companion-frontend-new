@@ -23,9 +23,12 @@
 
     <div>
       Đã có tài khoản?
-      <router-link :to="{ name: 'Login' }" class="ml-1">
+      <a
+        class="ml-1 login-link"
+        @click="goToLogin"
+      >
         Đăng nhập
-      </router-link>
+      </a>
     </div>
 
     <v-btn
@@ -89,7 +92,14 @@ export default class Register extends Vue {
       await this.$store.dispatch('account/login', payload)
       await this.$store.dispatch('account/getInfo')
       this.showSuccess('Chào bạn đến với Companion 😊')
-      this.$router.push({ name: 'DashBoard' })
+
+      const params = new URLSearchParams(location.search)
+      const next = params.get('next')
+      if (next !== null) {
+        this.$router.push(next)
+      } else {
+        this.$router.push({ name: 'DashBoard' })
+      }
     } catch (error) {
       if (assertErrCode(error, status.HTTP_400_BAD_REQUEST)) {
         const data = error.response.data
@@ -109,9 +119,24 @@ export default class Register extends Vue {
     this.emailErrs = []
     this.passwordErrs = []
   }
+
+  goToLogin (): void {
+    const params = new URLSearchParams(location.search)
+    const next = params.get('next')
+    if (next !== null) {
+      this.$router.push({
+        name: 'Login',
+        query: { next }
+      })
+    } else {
+      this.$router.push({ name: 'Login' })
+    }
+  }
 }
 </script>
 
 <style scoped lang="scss">
-
+.login-link {
+  text-decoration: underline;
+}
 </style>

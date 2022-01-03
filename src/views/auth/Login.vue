@@ -35,9 +35,12 @@
         </router-link>
       </v-col>
       <v-col cols="auto">
-        <router-link :to="{ name: 'Register' }">
+        <a
+          class="register-link"
+          @click="goToRegister"
+        >
           Đăng ký
-        </router-link>
+        </a>
       </v-col>
     </v-row>
 
@@ -184,8 +187,27 @@ export default class Login extends Vue {
   loginSuccess (): void {
     this.$store.dispatch('account/getInfo')
       .then(() => {
-        this.$router.push({ name: 'DashBoard' })
+        const params = new URLSearchParams(location.search)
+        const next = params.get('next')
+        if (next !== null) {
+          this.$router.push(next)
+        } else {
+          this.$router.push({ name: 'DashBoard' })
+        }
       })
+  }
+
+  goToRegister (): void {
+    const params = new URLSearchParams(location.search)
+    const next = params.get('next')
+    if (next !== null) {
+      this.$router.push({
+        name: 'Register',
+        query: { next }
+      })
+    } else {
+      this.$router.push({ name: 'Register' })
+    }
   }
 
   /**
@@ -248,5 +270,7 @@ export default class Login extends Vue {
 </script>
 
 <style scoped lang="scss">
-
+.register-link {
+  text-decoration: underline;
+}
 </style>
