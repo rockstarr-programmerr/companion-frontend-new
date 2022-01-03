@@ -161,5 +161,7 @@ export const noAuthenRoutes = [
   'Login',
   'Register',
   'ResetPassword',
-  'NewPassword'
+  'NewPassword',
+  'PrivacyPolicy',
+  'TermsOfService'
 ]
