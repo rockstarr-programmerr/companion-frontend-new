@@ -77,3 +77,10 @@ export declare interface LoginWithFacebookReq {
   refresh_token?: string;
   expires_in?: number;
 }
+
+export declare interface FbDataDeletionStatusRes {
+  confirmation_code: string;
+  status: string;
+  issued_at: string;
+  expires: string;
+}

@@ -3,6 +3,7 @@ import { endpoints, replacePk } from './endpoints'
 import {
   ChangePasswordReq,
   EmailResetPasswordLinkReq,
+  FbDataDeletionStatusRes,
   LoginReq, LoginRes,
   LoginWithFacebookReq,
   LoginWithGoogleReq,
@@ -85,6 +86,13 @@ export const account = {
 
   async loginWithFacebook (payload: LoginWithFacebookReq): Promise<LoginRes> {
     const res = await Vue.axios.post(endpoints.account.users.socialAccount.loginWithFacebook, payload)
+    return res.data
+  },
+
+  async getFbDataDeletionStatus (code: string): Promise<FbDataDeletionStatusRes> {
+    const res = await Vue.axios.get(endpoints.account.users.socialAccount.fbDataDeletionStatus, {
+      params: { code }
+    })
     return res.data
   }
 }

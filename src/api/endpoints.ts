@@ -12,7 +12,8 @@ export const endpoints = {
       search: '/users/search/',
       socialAccount: {
         loginWithGoogle: '/users/social-account/google/authen/',
-        loginWithFacebook: '/users/social-account/facebook/authen/'
+        loginWithFacebook: '/users/social-account/facebook/authen/',
+        fbDataDeletionStatus: '/users/social-account/facebook/data-deletion-status/'
       }
     },
     me: {

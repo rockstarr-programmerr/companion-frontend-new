@@ -14,6 +14,7 @@ import MyInfo from '../views/account/MyInfo.vue'
 import MyInfoChangeName from '../views/account/MyInfoChangeName.vue'
 import MyInfoChangePassword from '../views/account/MyInfoChangePassword.vue'
 import MyInfoChangeAvatar from '../views/account/MyInfoChangeAvatar.vue'
+import FbDataDeletionStatus from '../views/account/FbDataDeletionStatus.vue'
 
 import EventCreate from '../views/event/EventCreate.vue'
 import EventDetail from '../views/event/EventDetail.vue'
@@ -90,6 +91,11 @@ const routes: Array<RouteConfig> = [
       path: '/change-avatar',
       name: 'MyInfoChangeAvatar',
       component: MyInfoChangeAvatar
+    },
+    {
+      path: '/facebook-data-deletion-status',
+      name: 'FbDataDeletionStatus',
+      component: FbDataDeletionStatus
     }
   ]),
   ...prefixWith('/events', [
