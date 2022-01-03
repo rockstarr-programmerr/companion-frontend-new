@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 
 import DashBoard from '../views/DashBoard.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
+import TermsOfService from '../views/TermsOfService.vue'
 
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
@@ -65,6 +66,11 @@ const routes: Array<RouteConfig> = [
     path: '/privacy-policy',
     name: 'PrivacyPolicy',
     component: PrivacyPolicy
+  },
+  {
+    path: '/terms-of-service',
+    name: 'TermsOfService',
+    component: TermsOfService
   },
   ...prefixWith('/account', [
     {
